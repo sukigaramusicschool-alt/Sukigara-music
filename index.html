@@ -25,11 +25,12 @@
         .screen { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; }
         .screen.active { display: flex; }
 
+        /* ロゴ画像用のスタイル */
         .logo-area {
-            width: 100%; max-width: 240px; margin-bottom: 15px; min-height: 60px;
-            display: flex; justify-content: center; align-items: center;
+            width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px;
         }
-        .logo-placeholder { font-size: 26px; font-weight: bold; color: #6d4c41; letter-spacing: 2px; }
+        .logo-img-large { max-width: 100%; max-height: 140px; object-fit: contain; }
+        .logo-img-small { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
 
         h1 { font-size: 20px; margin: 5px 0 20px 0; color: #555; }
         h2 { font-size: 20px; margin: 5px 0; }
@@ -39,12 +40,13 @@
 
         .btn {
             width: 100%; padding: 18px; font-size: 20px; font-weight: bold;
-            border: none; border-radius: 12px; margin: 10px 0; cursor: pointer;
+            border: none; border-radius: 12px; margin: 8px 0; cursor: pointer;
             transition: transform 0.1s, opacity 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .btn:active { transform: scale(0.98); opacity: 0.9; }
         .btn-main { background-color: #4caf50; color: white; }
         .btn-sub { background-color: #2196f3; color: white; }
+        .btn-orange { background-color: #ff9800; color: white; }
         .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
 
@@ -62,7 +64,7 @@
             margin: 10px 0; display: inline-block; border: 2px solid #ffb74d;
         }
 
-        /* 3x3グリッドレイアウトに変更 */
+        /* 3x3グリッドレイアウト */
         .flag-list { 
             width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); 
             gap: 12px; margin-top: 15px; 
@@ -73,7 +75,7 @@
             text-shadow: 1px 1px 3px rgba(0,0,0,0.6); 
             border: 4px solid rgba(255,255,255,0.4); border-radius: 16px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer;
         }
         .btn-flag:active { transform: scale(0.92); opacity: 0.9; }
         .btn-flag .emoji { font-size: 34px; line-height: 1; }
@@ -98,7 +100,7 @@
     <!-- 0. 全体アクセスパスワード＆名前認証画面 -->
     <div id="screen-auth" class="screen active">
         <div class="logo-area">
-            <div class="logo-placeholder">Sukigara<br><span style="font-size:16px;">music school</span></div>
+            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
         </div>
         <h2>🔑 つかいはじめる</h2>
         <p class="sub-text">きょうしつの パスワードと おなまえを いれてね</p>
@@ -110,21 +112,34 @@
     <!-- 1. ホーム画面 -->
     <div id="screen-home" class="screen">
         <div class="logo-area">
-            <div class="logo-placeholder">Sukigara<br><span style="font-size:16px;">music school</span></div>
+            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
         </div>
-        <h1>ぜったいおんかん トレーニング</h1>
-        <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:-15px; margin-bottom:20px;"></p>
+        <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         <div style="width: 100%;">
             <button class="btn btn-main" onclick="startPractice()">▶ れんしゅうする</button>
-            <button class="btn btn-sub" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
+            <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
+            <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
             <button class="btn btn-gray" onclick="slideIntoSettings()">⚙ せってい</button>
         </div>
+    </div>
+
+    <!-- 1.5 修行モード画面 (新設) -->
+    <div id="screen-training" class="screen">
+        <button class="btn-home-mini" onclick="showScreen('screen-home')" title="ホームへもどる">🏠</button>
+        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
+        <h2>🎹 しゅぎょうモード</h2>
+        <p class="sub-text" style="margin-top: 0; margin-bottom: 10px;">すきな色をおして 音をたしかめよう</p>
+        <div id="training-container" class="flag-list"></div>
     </div>
 
     <!-- 2. 練習画面 -->
     <div id="screen-practice" class="screen">
         <button class="btn-home-mini" onclick="confirmGoHome()" title="ホームへもどる">🏠</button>
-        <div id="practice-progress" class="info-text" style="margin-top:-10px;">もんだい 1 / 10</div>
+        
+        <!-- 横型ロゴを配置 -->
+        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
+        
+        <div id="practice-progress" class="info-text" style="margin-top: -5px;">もんだい 1 / 10</div>
         
         <!-- ① 10秒カウントダウン表示 -->
         <div class="timer-box">⏱ のこり <span id="timer-sec">10</span> びょう</div>
@@ -139,7 +154,6 @@
         <div id="judge-comment" class="emoji-large">🌟</div>
         <div id="judge-correct-info" class="info-text" style="display:none; margin-bottom: 20px;"></div>
         
-        <!-- 自動進行をやめて「次へ」ボタンを設置 -->
         <button id="btn-next" class="btn btn-main" onclick="goToNextQuestion()" style="width: 80%; padding: 15px; margin-top: 10px;">つぎへ ▶</button>
     </div>
 
@@ -165,7 +179,7 @@
         <button class="btn btn-back" onclick="showScreen('screen-home')">もどる</button>
     </div>
 
-    <!-- 5.5 保護者用設定保護パスコード画面 (保護者向けなので漢字あり) -->
+    <!-- 5.5 保護者用設定保護パスコード画面 -->
     <div id="screen-passcode" class="screen">
         <h2>⚙ 保護者専用</h2>
         <p class="sub-text">保護者用パスコードを入力してください</p>
@@ -174,7 +188,7 @@
         <button class="btn btn-back" onclick="showScreen('screen-home')">キャンセル</button>
     </div>
 
-    <!-- 6. 設定画面 (保護者向けなので漢字あり) -->
+    <!-- 6. 設定画面 -->
     <div id="screen-settings" class="screen">
         <h2>⚙ 設定（保護者用）</h2>
         <div class="form-group">
@@ -209,7 +223,7 @@
         orange:   { name: "おれんじ", emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
         murasaki: { name: "むらさき", emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
         pink:     { name: "ぴんく",   emoji: "🌸", color: "#f06292", file: "pink.mp3" }, 
-        chairo:   { name: "ちゃいろ", emoji: "🟫", color: "#chairo.mp3" } 
+        chairo:   { name: "ちゃいろ", emoji: "🟫", color: "#795548", file: "chairo.mp3" } // ※茶色のカラーコードを少し修正しました
     };
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentName: "" };
@@ -217,8 +231,6 @@
     let timerId = null;
     let timeLeft = 10;
     const audioCache = {};
-    
-    // 💡 連打による二重動作を防ぐためのブロックフラグ
     let isAnswering = false; 
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -285,6 +297,32 @@
 
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
+    // 💡 新設：修行モードを開始する処理
+    function startTraining() {
+        if (appSettings.enabledColors.length === 0) {
+            alert("せっていがめんで しゅつだいする色を 1つえらんでね。");
+            return;
+        }
+        renderTrainingButtons();
+        showScreen('screen-training');
+    }
+
+    // 💡 新設：修行モード用のボタンを描画（押すと音が鳴るだけ）
+    function renderTrainingButtons() {
+        const container = document.getElementById('training-container');
+        container.innerHTML = '';
+        appSettings.enabledColors.forEach(key => {
+            const data = COLOR_DATA[key];
+            const btn = document.createElement('button');
+            btn.className = 'btn-flag';
+            btn.style.backgroundColor = data.color;
+            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span>${data.name}</span>`;
+            // クリックしたら正誤判定ではなく、ただその色の音を鳴らす
+            btn.onclick = () => playChord(key);
+            container.appendChild(btn);
+        });
+    }
+
     function startPractice() {
         gameState.currentQuestionIndex = 0;
         gameState.correctCount = 0;
@@ -318,7 +356,6 @@
             const btn = document.createElement('button');
             btn.className = 'btn-flag';
             btn.style.backgroundColor = data.color;
-            // HTMLの中身をアイコンと文字で分けて改行させる
             btn.innerHTML = `<span class="emoji">${data.emoji}</span><span>${data.name}</span>`;
             btn.onclick = () => handleAnswer(key);
             container.appendChild(btn);
@@ -334,7 +371,7 @@
             document.getElementById('timer-sec').innerText = timeLeft;
             if (timeLeft <= 0) {
                 stopTimer();
-                handleAnswer(null); // 時間切れ
+                handleAnswer(null); 
             }
         }, 1000);
     }
@@ -344,7 +381,7 @@
     }
 
     function nextQuestion() {
-        isAnswering = false; // 新しい問題で入力を許可する
+        isAnswering = false; 
         
         if (gameState.currentQuestionIndex >= appSettings.questionCount) {
             endPractice();
@@ -359,15 +396,14 @@
         }, 300);
     }
 
-    // 💡 「次へ」ボタンが押されたときの処理
     function goToNextQuestion() {
         gameState.currentQuestionIndex++;
         nextQuestion();
     }
 
     function handleAnswer(selectedKey) {
-        if (isAnswering) return; // すでに処理中なら無視（連打・2重音源バグ防止）
-        isAnswering = true; // 処理中にする
+        if (isAnswering) return; 
+        isAnswering = true; 
         
         stopTimer(); 
         const isCorrect = (selectedKey === gameState.currentColorKey);
@@ -391,7 +427,6 @@
             resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
             showScreen('screen-judge');
 
-            // 間違えたとき、画面表示の直後に正解の音を一度だけ鳴らす
             setTimeout(() => {
                 playChord(gameState.currentColorKey);
             }, 300);
