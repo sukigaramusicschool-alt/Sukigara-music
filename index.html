@@ -18,19 +18,19 @@
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
         .container {
-            width: 100%; max-width: 480px; height: 100vh; max-height: 850px;
+            width: 100%; max-width: 480px; height: 100vh; max-height: 900px;
             background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             overflow-y: auto; position: relative; display: flex; flex-direction: column; padding: 20px;
         }
         .screen { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; }
         .screen.active { display: flex; }
 
-        /* ロゴ画像用のスタイル */
+        /* ロゴ画像用のスタイル（サイズを大幅に大きくしています） */
         .logo-area {
-            width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 10px;
+            width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;
         }
-        .logo-img-large { max-width: 100%; max-height: 140px; object-fit: contain; }
-        .logo-img-small { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
+        .logo-img-large { width: 85%; max-width: 300px; height: auto; object-fit: contain; }
+        .logo-img-small { width: 80%; max-width: 250px; height: auto; object-fit: contain; margin-bottom: 15px; margin-top: 15px; }
 
         h1 { font-size: 20px; margin: 5px 0 20px 0; color: #555; }
         h2 { font-size: 20px; margin: 5px 0; }
@@ -64,29 +64,29 @@
             margin: 10px 0; display: inline-block; border: 2px solid #ffb74d;
         }
 
-        /* 3x3グリッドレイアウト */
+        /* 3x3以上のグリッドレイアウト（14色でも綺麗に並びます） */
         .flag-list { 
             width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 12px; margin-top: 15px; 
+            gap: 12px; margin-top: 15px; padding-bottom: 20px;
         }
         .btn-flag {
             width: 100%; aspect-ratio: 1 / 1; padding: 5px; 
-            font-size: 16px; font-weight: bold; color: white;
+            font-size: 15px; font-weight: bold; color: white;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.6); 
             border: 4px solid rgba(255,255,255,0.4); border-radius: 16px;
             display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer;
         }
         .btn-flag:active { transform: scale(0.92); opacity: 0.9; }
-        .btn-flag .emoji { font-size: 34px; line-height: 1; }
+        .btn-flag .emoji { font-size: 30px; line-height: 1; text-shadow: none; margin-bottom: 2px; }
 
         .judge-display { font-size: 44px; font-weight: bold; margin: 20px 0; }
 
         .form-group { width: 100%; text-align: left; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; }
         .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 18px; padding: 5px 0; }
-        .checkbox-item input { width: 22px; height: 22px; }
+        .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 16px; padding: 5px 0; }
+        .checkbox-item input { width: 22px; height: 22px; flex-shrink: 0; }
         .radio-group { display: flex; gap: 15px; }
         .radio-group label { display: flex; align-items: center; gap: 5px; font-size: 18px; }
         .radio-group input { width: 22px; height: 22px; }
@@ -123,12 +123,12 @@
         </div>
     </div>
 
-    <!-- 1.5 修行モード画面 (新設) -->
+    <!-- 1.5 修行モード画面 -->
     <div id="screen-training" class="screen">
         <button class="btn-home-mini" onclick="showScreen('screen-home')" title="ホームへもどる">🏠</button>
         <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
         <h2>🎹 しゅぎょうモード</h2>
-        <p class="sub-text" style="margin-top: 0; margin-bottom: 10px;">すきな色をおして 音をたしかめよう</p>
+        <p class="sub-text" style="margin-top: 0; margin-bottom: 10px;">すきなボタンをおして 音をたしかめよう</p>
         <div id="training-container" class="flag-list"></div>
     </div>
 
@@ -136,12 +136,10 @@
     <div id="screen-practice" class="screen">
         <button class="btn-home-mini" onclick="confirmGoHome()" title="ホームへもどる">🏠</button>
         
-        <!-- 横型ロゴを配置 -->
         <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
         
         <div id="practice-progress" class="info-text" style="margin-top: -5px;">もんだい 1 / 10</div>
         
-        <!-- ① 10秒カウントダウン表示 -->
         <div class="timer-box">⏱ のこり <span id="timer-sec">10</span> びょう</div>
 
         <button class="btn btn-sub" style="width: auto; padding: 8px 20px; font-size: 16px; margin-bottom: 5px; border-radius: 20px;" onclick="playCurrentChord()">🎵 もういちどきく</button>
@@ -192,7 +190,7 @@
     <div id="screen-settings" class="screen">
         <h2>⚙ 設定（保護者用）</h2>
         <div class="form-group">
-            <label>出題する色</label>
+            <label>出題するボタン（色・音階）</label>
             <div id="settings-colors" class="checkbox-grid"></div>
         </div>
         <div class="form-group">
@@ -212,18 +210,25 @@
     const CLASS_PASSCODE = "2026"; 
     
     // 💡 講師用集計GASのWebアプリURL（再度こちらにURLを貼り付けてください）
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzOIt4nAWqp_bTlZh7CPnfqpVTvi-cIM_Xkj4zqeDcQ0cABPVhlRyQpWjH-EmVRpmcgFQ/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxZRngh6TGCf2vpr9htBNksrEr1j8NZnb5mbac567Uu/dev";
 
+    // ★ ご指定の14色＋音階表示データ
     const COLOR_DATA = {
-        aka:      { name: "あか",     emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
-        kiiro:    { name: "きいろ",   emoji: "🟨", color: "#fdd835", file: "kiiro.mp3" }, 
-        ao:       { name: "あお",     emoji: "🟦", color: "#1e88e5", file: "ao.mp3" }, 
-        kuro:     { name: "くろ",     emoji: "⬛", color: "#212121", file: "kuro.mp3" }, 
-        midori:   { name: "みどり",   emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
-        orange:   { name: "おれんじ", emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
-        murasaki: { name: "むらさき", emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
-        pink:     { name: "ぴんく",   emoji: "🌸", color: "#f06292", file: "pink.mp3" }, 
-        chairo:   { name: "ちゃいろ", emoji: "🟫", color: "#795548", file: "chairo.mp3" } // ※茶色のカラーコードを少し修正しました
+        aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
+        kiiro:    { name: "きいろ",     emoji: "🟨", color: "#fdd835", file: "kiiro.mp3" }, 
+        ao:       { name: "あお",       emoji: "🟦", color: "#1e88e5", file: "ao.mp3" }, 
+        kuro:     { name: "くろ",       emoji: "⬛", color: "#212121", file: "kuro.mp3" }, 
+        midori:   { name: "みどり",     emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
+        orange:   { name: "おれんじ",   emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
+        murasaki: { name: "むらさき",   emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
+        pink:     { name: "ぴんく",     emoji: "🌸", color: "#f06292", file: "pink.mp3" }, 
+        chairo:   { name: "ちゃいろ",   emoji: "🟫", color: "#795548", file: "chairo.mp3" },
+        // ▼追加・変更の5つ（音階表示）▼
+        kimidori: { name: "らちすみ",   emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
+        hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" }, // 肌色は文字が見やすいように黒文字に設定
+        fujiiro:  { name: "みぎすし",   emoji: "🪻", color: "#b39ddb", file: "fujiiro.mp3" },
+        hai:      { name: "べれふぁ",   emoji: "🩶", color: "#9e9e9e", file: "hai.mp3" },
+        mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentName: "" };
@@ -297,17 +302,15 @@
 
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
-    // 💡 新設：修行モードを開始する処理
     function startTraining() {
         if (appSettings.enabledColors.length === 0) {
-            alert("せっていがめんで しゅつだいする色を 1つえらんでね。");
+            alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。");
             return;
         }
         renderTrainingButtons();
         showScreen('screen-training');
     }
 
-    // 💡 新設：修行モード用のボタンを描画（押すと音が鳴るだけ）
     function renderTrainingButtons() {
         const container = document.getElementById('training-container');
         container.innerHTML = '';
@@ -316,8 +319,8 @@
             const btn = document.createElement('button');
             btn.className = 'btn-flag';
             btn.style.backgroundColor = data.color;
-            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span>${data.name}</span>`;
-            // クリックしたら正誤判定ではなく、ただその色の音を鳴らす
+            const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
+            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
             btn.onclick = () => playChord(key);
             container.appendChild(btn);
         });
@@ -329,7 +332,7 @@
         gameState.questionsList = [];
         const pool = appSettings.enabledColors;
         if (pool.length === 0) {
-            alert("せっていがめんで しゅつだいする色を 1つえらんでね。");
+            alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。");
             return;
         }
         for (let i = 0; i < appSettings.questionCount; i++) {
@@ -356,7 +359,8 @@
             const btn = document.createElement('button');
             btn.className = 'btn-flag';
             btn.style.backgroundColor = data.color;
-            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span>${data.name}</span>`;
+            const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
+            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
             btn.onclick = () => handleAnswer(key);
             container.appendChild(btn);
         });
@@ -519,6 +523,7 @@
         Object.keys(COLOR_DATA).forEach(key => {
             const data = COLOR_DATA[key];
             const item = document.createElement('div'); item.className = 'checkbox-item';
+            // 設定画面のリストでも音階が表示されるように変更
             item.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}"><label for="chk-${key}">${data.emoji} ${data.name}</label>`;
             grid.appendChild(item);
         });
@@ -539,7 +544,7 @@
             const chk = document.getElementById(`chk-${key}`);
             if (chk && chk.checked) checkedColors.push(key);
         });
-        if (checkedColors.length === 0) { alert("出題する色を 1つ以上選んでください。"); return; }
+        if (checkedColors.length === 0) { alert("出題するボタンを 1つ以上選んでください。"); return; }
         
         let count = 10;
         document.getElementsByName('setting-count').forEach(r => { if (r.checked) count = parseInt(r.value); });
