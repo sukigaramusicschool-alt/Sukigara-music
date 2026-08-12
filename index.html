@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ぜったいおんかんトレーニング</title>
+    <!-- グラフ描画ライブラリ Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-color: #e6f7ff;
@@ -25,7 +27,6 @@
         .screen { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; }
         .screen.active { display: flex; }
 
-        /* ロゴ画像用のスタイル（サイズを大幅に大きくしています） */
         .logo-area {
             width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px;
         }
@@ -57,14 +58,12 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;
         }
 
-        /* 10秒タイマー表示 */
         .timer-box {
             font-size: 22px; font-weight: bold; color: #ff5722;
             background: #fff3e0; padding: 6px 16px; border-radius: 20px;
             margin: 10px 0; display: inline-block; border: 2px solid #ffb74d;
         }
 
-        /* 3x3以上のグリッドレイアウト（14色でも綺麗に並びます） */
         .flag-list { 
             width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); 
             gap: 12px; margin-top: 15px; padding-bottom: 20px;
@@ -91,6 +90,16 @@
         .radio-group label { display: flex; align-items: center; gap: 5px; font-size: 18px; }
         .radio-group input { width: 22px; height: 22px; }
         .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
+
+        .chart-container {
+            width: 100%;
+            height: 220px;
+            margin-top: 10px;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
@@ -103,7 +112,7 @@
             <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
         </div>
         <h2>🔑 つかいはじめる</h2>
-        <p class="sub-text">きょうしつの パスワードと おなまえを いれてね</p>
+        <p class="sub-text">きょうしつの パスコードと おなまえを いれてね</p>
         <input type="password" id="auth-passcode" class="input-text" placeholder="きょうしつパスコード" inputmode="numeric">
         <input type="text" id="auth-student-name" class="input-text" placeholder="おなまえ (れい: たなか たろう)">
         <button class="btn btn-main" onclick="authenticateApp()">はいれるよ！</button>
@@ -150,9 +159,12 @@
     <div id="screen-judge" class="screen">
         <div id="judge-result" class="judge-display">⭕ せいかい！</div>
         <div id="judge-comment" class="emoji-large">🌟</div>
-        <div id="judge-correct-info" class="info-text" style="display:none; margin-bottom: 20px;"></div>
+        <div id="judge-correct-info" class="info-text" style="display:none; margin-bottom: 10px;"></div>
         
-        <button id="btn-next" class="btn btn-main" onclick="goToNextQuestion()" style="width: 80%; padding: 15px; margin-top: 10px;">つぎへ ▶</button>
+        <!-- 手動でも正解の音声を聴き直せるボタンを追加（欲張りセット） -->
+        <button id="btn-replay-correct" class="btn btn-sub" style="width: 80%; padding: 10px; font-size: 16px; margin-bottom: 10px; border-radius: 20px; display: none;" onclick="playCurrentChord()">🎵 せいかいの おとを きく</button>
+        
+        <button id="btn-next" class="btn btn-main" onclick="goToNextQuestion()" style="width: 80%; padding: 15px; margin-top: 5px;">つぎへ ▶</button>
     </div>
 
     <!-- 4. 練習終了画面 -->
@@ -165,14 +177,19 @@
         <button class="btn btn-main" onclick="showScreen('screen-home')">ホームへもどる</button>
     </div>
 
-    <!-- 5. 記録画面 -->
+    <!-- 5. 記録画面（グラフ表示追加） -->
     <div id="screen-record" class="screen">
         <h2>📈 きろく</h2>
-        <div class="form-group" style="margin-top:15px; font-size: 18px; line-height: 2;">
+        <div class="form-group" style="margin-top:10px; font-size: 16px; line-height: 1.8; padding: 12px;">
             <div>👤 おなまえ： <span id="rec-name" style="font-weight:bold;">-</span></div>
             <div>🔥 れんぞくにっすう： <span id="rec-streak" style="font-weight:bold; color:#e91e63;">0</span> にち</div>
             <div>🏆 さいこうきろく： <span id="rec-best" style="font-weight:bold; color:#4caf50;">0</span> %</div>
             <div>📊 れんしゅうかいすう： <span id="rec-count" style="font-weight:bold;">0</span> かい</div>
+            
+            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 さいきんの せいせき すいい</div>
+            <div class="chart-container">
+                <canvas id="recordChart"></canvas>
+            </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('screen-home')">もどる</button>
     </div>
@@ -208,11 +225,8 @@
 
 <script>
     const CLASS_PASSCODE = "2026"; 
-    
-    // 💡 講師用集計GASのWebアプリURL（再度こちらにURLを貼り付けてください）
     const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxZRngh6TGCf2vpr9htBNksrEr1j8NZnb5mbac567Uu/dev";
 
-    // ★ ご指定の14色＋音階表示データ
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
         kiiro:    { name: "きいろ",     emoji: "🟨", color: "#fdd835", file: "kiiro.mp3" }, 
@@ -223,9 +237,8 @@
         murasaki: { name: "むらさき",   emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
         pink:     { name: "ぴんく",     emoji: "🌸", color: "#f06292", file: "pink.mp3" }, 
         chairo:   { name: "ちゃいろ",   emoji: "🟫", color: "#795548", file: "chairo.mp3" },
-        // ▼追加・変更の5つ（音階表示）▼
         kimidori: { name: "らちすみ",   emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
-        hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" }, // 肌色は文字が見やすいように黒文字に設定
+        hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" },
         fujiiro:  { name: "みぎすし",   emoji: "🪻", color: "#b39ddb", file: "fujiiro.mp3" },
         hai:      { name: "べれふぁ",   emoji: "🩶", color: "#9e9e9e", file: "hai.mp3" },
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
@@ -237,6 +250,7 @@
     let timeLeft = 10;
     const audioCache = {};
     let isAnswering = false; 
+    let chartInstance = null;
 
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
@@ -283,7 +297,18 @@
         });
     }
 
+    // すべての再生中音声を即座に停止する処理
+    function stopAllAudio() {
+        Object.keys(audioCache).forEach(key => {
+            if (audioCache[key]) {
+                audioCache[key].pause();
+                audioCache[key].currentTime = 0;
+            }
+        });
+    }
+
     function showScreen(screenId) {
+        stopAllAudio(); // 画面切替時は常に音声を強制停止（音の重なりを回避）
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
     }
@@ -295,6 +320,7 @@
 
     function playChord(colorKey) {
         if (!colorKey || !audioCache[colorKey]) return;
+        stopAllAudio(); // 新しく音を鳴らす前にも前の音を停止
         const audio = audioCache[colorKey];
         audio.currentTime = 0;
         audio.play().catch(e => console.log("Audio play error:", e));
@@ -401,6 +427,7 @@
     }
 
     function goToNextQuestion() {
+        stopAllAudio(); // 「つぎへ」を押したら正解音声の自動再生も即座にキャンセル
         gameState.currentQuestionIndex++;
         nextQuestion();
     }
@@ -415,6 +442,7 @@
         const resTitle = document.getElementById('judge-result');
         const resComment = document.getElementById('judge-comment');
         const resInfo = document.getElementById('judge-correct-info');
+        const btnReplay = document.getElementById('btn-replay-correct');
         
         if (isCorrect) {
             gameState.correctCount++;
@@ -422,6 +450,7 @@
             resTitle.style.color = "#4caf50";
             resComment.innerText = "🌟 すごい！";
             resInfo.style.display = "none";
+            btnReplay.style.display = "none";
             showScreen('screen-judge');
         } else {
             resTitle.innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ おしい！";
@@ -429,10 +458,14 @@
             resComment.innerText = "☁";
             resInfo.style.display = "block";
             resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
+            btnReplay.style.display = "inline-block"; // 不正解時は手動ボタンも表示
             showScreen('screen-judge');
 
+            // 自動再生（欲張りセット：自動再生しつつ、「つぎへ」で即時カット可能）
             setTimeout(() => {
-                playChord(gameState.currentColorKey);
+                if (document.getElementById('screen-judge').classList.contains('active')) {
+                    playChord(gameState.currentColorKey);
+                }
             }, 300);
         }
     }
@@ -471,10 +504,17 @@
             if (recLastDate === yesterday.toLocaleDateString()) { recStreak++; } else { recStreak = 1; }
         }
 
+        // グラフ用履歴データの追加保存（直近10件）
+        let history = JSON.parse(localStorage.getItem('rec_history') || "[]");
+        history.push(currentPercent);
+        if (history.length > 10) history.shift();
+
         localStorage.setItem('rec_count', recCount);
         localStorage.setItem('rec_best', recBest);
         localStorage.setItem('rec_streak', recStreak);
         localStorage.setItem('rec_last_date', todayStr);
+        localStorage.setItem('rec_history', JSON.stringify(history));
+        
         return recCount;
     }
 
@@ -502,6 +542,52 @@
         document.getElementById('rec-count').innerText = localStorage.getItem('rec_count') || "0";
         document.getElementById('rec-best').innerText = localStorage.getItem('rec_best') || "0";
         document.getElementById('rec-streak').innerText = localStorage.getItem('rec_streak') || "0";
+
+        renderRecordChart();
+    }
+
+    // Chart.jsによる成績推移グラフの描画関数
+    function renderRecordChart() {
+        const history = JSON.parse(localStorage.getItem('rec_history') || "[]");
+        const ctx = document.getElementById('recordChart').getContext('2d');
+
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = history.map((_, index) => `${index + 1}回前`);
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['データなし'],
+                datasets: [{
+                    label: '正答率 (%)',
+                    data: history.length ? history : [0],
+                    borderColor: '#2196f3',
+                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#ff9800',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
     }
 
     function slideIntoSettings() {
@@ -523,7 +609,6 @@
         Object.keys(COLOR_DATA).forEach(key => {
             const data = COLOR_DATA[key];
             const item = document.createElement('div'); item.className = 'checkbox-item';
-            // 設定画面のリストでも音階が表示されるように変更
             item.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}"><label for="chk-${key}">${data.emoji} ${data.name}</label>`;
             grid.appendChild(item);
         });
