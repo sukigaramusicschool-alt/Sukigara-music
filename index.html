@@ -95,7 +95,7 @@
         .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
 
         .chart-container {
-            width: 100%; height: 220px; margin-top: 10px; background: #ffffff;
+            width: 100%; height: 200px; margin-top: 10px; margin-bottom: 20px; background: #ffffff;
             border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
         }
     </style>
@@ -186,12 +186,19 @@
             
             <div style="font-weight:bold; margin-top: 15px; color: #d32f2f;">⚠️ にがてなおと</div>
             <div id="rec-weak-colors" style="background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 15px;">-</div>
+            
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
             
-            <div style="font-weight:bold; margin-top: 15px; color: #333;">📊 日々のれんしゅうかいすう</div>
+            <!-- グラフ表示エリア -->
+            <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 日々のせいとうりつ (最高%)</div>
             <div class="chart-container">
-                <canvas id="recordChart"></canvas>
+                <canvas id="accuracyChart"></canvas>
+            </div>
+
+            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 日々のれんしゅうかいすう</div>
+            <div class="chart-container">
+                <canvas id="countChart"></canvas>
             </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('screen-home')">もどる</button>
@@ -227,7 +234,7 @@
 </div>
 
 <script>
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyUaOIhTTJnhI7p1YotfnHmqGo2RLudQw-_YKkXvyfSkmutMJbpefdSt7AJAlO_ZFC7rQ/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxV5T38lsDpfvsKu4qj114aqr6nUyvPfBEtEE9dyQ4/dev";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -263,7 +270,10 @@
     let timeLeft = 10;
     const audioCache = {};
     let isAnswering = false; 
-    let chartInstance = null;
+    
+    // グラフのインスタンスを保持する変数
+    let countChartInstance = null;
+    let accuracyChartInstance = null;
 
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
@@ -413,7 +423,7 @@
 
     function startTimer() {
         stopTimer();
-        timeLeft = 10; // 制限時間を10秒に固定
+        timeLeft = 10; 
         
         document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
@@ -561,9 +571,13 @@
 
         let dailyHistory = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
         if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== todayStr) {
-            dailyHistory.push({ date: todayStr, count: 1 });
+            dailyHistory.push({ date: todayStr, count: 1, bestPercent: currentPercent });
         } else {
             dailyHistory[dailyHistory.length - 1].count = recTodayCount;
+            // その日の最高正答率を更新
+            if (dailyHistory[dailyHistory.length - 1].bestPercent === undefined || currentPercent > dailyHistory[dailyHistory.length - 1].bestPercent) {
+                dailyHistory[dailyHistory.length - 1].bestPercent = currentPercent;
+            }
         }
         if (dailyHistory.length > 14) dailyHistory.shift(); 
 
@@ -610,7 +624,7 @@
         document.getElementById('rec-streak').innerText = localStorage.getItem('rec_streak') || "0";
         document.getElementById('rec-best-streak').innerText = localStorage.getItem('rec_best_streak') || "0";
         renderColorStats();
-        renderRecordChart();
+        renderRecordCharts();
     }
     
     function renderColorStats() {
@@ -657,27 +671,67 @@
         }
     }
 
-    function renderRecordChart() {
+    function renderRecordCharts() {
         const history = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
-        const ctx = document.getElementById('recordChart').getContext('2d');
 
-        if (chartInstance) chartInstance.destroy();
+        if (countChartInstance) countChartInstance.destroy();
+        if (accuracyChartInstance) accuracyChartInstance.destroy();
 
         // 日付を「8/13」のように短くフォーマットする
         const labels = history.map(item => {
             let parts = item.date.split('/');
             return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
         });
-        const data = history.map(item => item.count);
 
-        chartInstance = new Chart(ctx, {
-            type: 'bar', // 推移がわかりやすいように棒グラフに設定
+        // ==========================================
+        // 1. 日々の最高正答率グラフ（折れ線グラフ）
+        // ==========================================
+        const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
+        const dataAcc = history.map(item => item.bestPercent || 0);
+
+        accuracyChartInstance = new Chart(ctxAcc, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['データなし'],
+                datasets: [{
+                    label: '最高正答率 (%)',
+                    data: dataAcc.length ? dataAcc : [0],
+                    backgroundColor: 'rgba(255, 152, 0, 0.2)', // 薄いオレンジ
+                    borderColor: '#ff9800',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ff9800',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { 
+                        min: 0, 
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    } 
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // ==========================================
+        // 2. 日々の練習回数グラフ（棒グラフ）
+        // ==========================================
+        const ctxCount = document.getElementById('countChart').getContext('2d');
+        const dataCount = history.map(item => item.count || 0);
+
+        countChartInstance = new Chart(ctxCount, {
+            type: 'bar', 
             data: {
                 labels: labels.length ? labels : ['データなし'],
                 datasets: [{
                     label: '練習回数 (回)',
-                    data: data.length ? data : [0],
-                    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                    data: dataCount.length ? dataCount : [0],
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)', // 緑色
                     borderColor: '#4caf50',
                     borderWidth: 1,
                     borderRadius: 4
@@ -689,7 +743,7 @@
                 scales: { 
                     y: { 
                         min: 0, 
-                        ticks: { stepSize: 1 } // 回数なので1刻み
+                        ticks: { stepSize: 1 } 
                     } 
                 },
                 plugins: { legend: { display: false } }
