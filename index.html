@@ -1,4 +1,3 @@
-アプリ
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -40,7 +39,6 @@
         .info-text { font-size: 18px; margin: 10px 0; font-weight: bold; }
         .sub-text { font-size: 14px; color: #666; margin-bottom: 20px; }
         
-        /* Ver.2追加: 判定画面の褒め言葉用スタイル */
         .judge-comment-text { font-size: 32px; font-weight: bold; margin-bottom: 20px; }
 
         .btn {
@@ -54,8 +52,6 @@
         .btn-orange { background-color: #ff9800; color: white; }
         .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
-        
-        /* Ver.2追加: もっとれんしゅう用ボタン色 */
         .btn-danger { background-color: #f44336; color: white; } 
 
         .btn-home-mini {
@@ -99,13 +95,8 @@
         .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
 
         .chart-container {
-            width: 100%;
-            height: 220px;
-            margin-top: 10px;
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 10px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+            width: 100%; height: 220px; margin-top: 10px; background: #ffffff;
+            border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -113,16 +104,16 @@
 
 <div class="container">
 
-    <!-- 0. 全体アクセスパスワード＆名前認証画面 -->
+    <!-- 0. 生徒個別ID・パスワード認証画面 -->
     <div id="screen-auth" class="screen active">
         <div class="logo-area">
             <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
         </div>
-        <h2>🔑 つかいはじめる</h2>
-        <p class="sub-text">きょうしつの パスコードと おなまえを いれてね</p>
-        <input type="password" id="auth-passcode" class="input-text" placeholder="きょうしつパスコード" inputmode="numeric">
-        <input type="text" id="auth-student-name" class="input-text" placeholder="おなまえ (れい: たなか たろう)">
-        <button class="btn btn-main" onclick="authenticateApp()">はいれるよ！</button>
+        <h2>🔑 ログイン</h2>
+        <p class="sub-text">せいとID と パスワードを 入れてね</p>
+        <input type="text" id="auth-student-id" class="input-text" placeholder="せいとID (例: 001)" inputmode="numeric">
+        <input type="password" id="auth-password" class="input-text" placeholder="パスワード" inputmode="numeric">
+        <button class="btn btn-main" onclick="authenticateStudent()">ログイン</button>
     </div>
 
     <!-- 1. ホーム画面 -->
@@ -132,7 +123,6 @@
         </div>
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         <div style="width: 100%;">
-            <!-- Ver.2追加: れんしゅうともっとれんしゅうを分離 -->
             <button class="btn btn-main" onclick="startPractice('normal')">▶ れんしゅうする</button>
             <button class="btn btn-danger" onclick="startPractice('weakness')">🔥 もっとれんしゅう</button>
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
@@ -153,13 +143,9 @@
     <!-- 2. 練習画面 -->
     <div id="screen-practice" class="screen">
         <button class="btn-home-mini" onclick="confirmGoHome()" title="ホームへもどる">🏠</button>
-        
         <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
-        
         <div id="practice-progress" class="info-text" style="margin-top: -5px;">もんだい 1 / 10</div>
-        
         <div class="timer-box">⏱ のこり <span id="timer-sec">10</span> びょう</div>
-
         <button class="btn btn-sub" style="width: auto; padding: 8px 20px; font-size: 16px; margin-bottom: 5px; border-radius: 20px;" onclick="playCurrentChord()">🎵 もういちどきく</button>
         <div id="flag-container" class="flag-list"></div>
     </div>
@@ -167,12 +153,9 @@
     <!-- 3. 結果判定画面 -->
     <div id="screen-judge" class="screen">
         <div id="judge-result" class="judge-display">⭕ せいかい！</div>
-        <!-- Ver.2追加: 褒め言葉が長くなるためクラス変更 -->
         <div id="judge-comment" class="judge-comment-text">🌟 いいね！</div>
         <div id="judge-correct-info" class="info-text" style="display:none; margin-bottom: 10px;"></div>
-        
         <button id="btn-replay-correct" class="btn btn-sub" style="width: 80%; padding: 10px; font-size: 16px; margin-bottom: 10px; border-radius: 20px; display: none;" onclick="playCurrentChord()">🎵 せいかいの おとを きく</button>
-        
         <button id="btn-next" class="btn btn-main" onclick="goToNextQuestion()" style="width: 80%; padding: 15px; margin-top: 5px;">つぎへ ▶</button>
     </div>
 
@@ -180,18 +163,11 @@
     <div id="screen-result" class="screen">
         <div class="emoji-large" style="margin-bottom: 10px;">🎉</div>
         <h2>おつかれさま！</h2>
-        
-        <!-- Ver.2追加: レベルと最高連続正解、前回との比較 -->
-        <div id="result-level-msg" class="info-text" style="color: #2196f3; margin: 5px 0;">⭐ Lv.1</div>
-        
         <div id="result-score" class="info-text" style="font-size: 24px; margin: 10px 0;">10もんちゅう 8もんせいかい！</div>
         <div id="result-percent" style="font-size: 28px; font-weight: bold; color: #ff5722; margin-bottom: 5px;">80%</div>
-        
         <div id="result-diff" class="sub-text" style="margin-bottom: 5px; font-weight: bold;">🌱 はじめてのきろく！</div>
         <div id="result-stars" style="font-size: 32px; color: #ffc107; margin-bottom: 10px;">⭐⭐⭐⭐</div>
-        
         <div id="result-best-streak" class="info-text" style="margin-bottom: 20px; color: #e91e63;">🔥 さいこうれんぞく：5もん</div>
-
         <button class="btn btn-main" onclick="showScreen('screen-home')">ホームへもどる</button>
     </div>
 
@@ -200,23 +176,20 @@
         <h2>📈 きろく</h2>
         <div class="form-group" style="margin-top:10px; font-size: 16px; line-height: 1.8; padding: 12px;">
             <div>👤 おなまえ： <span id="rec-name" style="font-weight:bold;">-</span></div>
-            <!-- Ver.2追加 -->
-            <div>⭐ 現在レベル： Lv.<span id="rec-level" style="font-weight:bold; color:#2196f3;">1</span></div>
             <div>🏆 さいこうれんぞく： <span id="rec-best-streak" style="font-weight:bold; color:#ff9800;">0</span> もん</div>
-            
             <div>🔥 れんぞくにっすう： <span id="rec-streak" style="font-weight:bold; color:#e91e63;">0</span> にち</div>
             <div>🏆 さいこうきろく： <span id="rec-best" style="font-weight:bold; color:#4caf50;">0</span> %</div>
-            <div>📊 れんしゅうかいすう： <span id="rec-count" style="font-weight:bold;">0</span> かい</div>
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;">
+                <div>📅 今日のれんしゅう： <span id="rec-today-count" style="font-weight:bold; color:#2196f3;">0</span> かい</div>
+                <div style="font-size: 14px; color: #666;">（これまでの累計： <span id="rec-count">0</span> かい）</div>
+            </div>
             
-            <!-- Ver.2追加 苦手音表示 -->
             <div style="font-weight:bold; margin-top: 15px; color: #d32f2f;">⚠️ にがてなおと</div>
             <div id="rec-weak-colors" style="background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 15px;">-</div>
-
-            <!-- Ver.2追加 音の得意・苦手リスト -->
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
-
-            <div style="font-weight:bold; margin-top: 15px; color: #333;">📊 さいきんの せいせき すいい</div>
+            
+            <div style="font-weight:bold; margin-top: 15px; color: #333;">📊 日々のれんしゅうかいすう</div>
             <div class="chart-container">
                 <canvas id="recordChart"></canvas>
             </div>
@@ -254,11 +227,7 @@
 </div>
 
 <script>
-    const CLASS_PASSCODE = "2026"; 
     const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyUaOIhTTJnhI7p1YotfnHmqGo2RLudQw-_YKkXvyfSkmutMJbpefdSt7AJAlO_ZFC7rQ/exec";
-    
-    // Ver.2追加: レベル別制限時間
-    const LEVEL_TIME_LIMITS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 2 };
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -277,9 +246,8 @@
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
-    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentName: "" };
+    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "" };
     
-    // Ver.2追加: gameStateにmode, streak等の管理を追加
     let gameState = { 
         currentQuestionIndex: 0, 
         correctCount: 0, 
@@ -288,7 +256,7 @@
         mode: "normal",
         currentStreak: 0,
         bestStreak: 0,
-        colorStats: {} // 今回の練習用の音別成績一時保存
+        colorStats: {} 
     };
     
     let timerId = null;
@@ -314,25 +282,35 @@
         }
     }
 
-    function authenticateApp() {
-        const pass = document.getElementById('auth-passcode').value;
-        const name = document.getElementById('auth-student-name').value.trim();
+    function authenticateStudent() {
+        const studentId = document.getElementById('auth-student-id').value.trim();
+        const password = document.getElementById('auth-password').value.trim();
         
-        if (pass !== CLASS_PASSCODE) {
-            alert("きょうしつの パスコードが ちがいます");
-            return;
-        }
-        if (!name) {
-            alert("おなまえを いれてね");
-            return;
-        }
+        if (!studentId || !password) { alert("せいとIDとパスワードを 入れてね"); return; }
 
-        appSettings.studentName = name;
-        localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
-        localStorage.setItem('seguchi_authenticated', 'true');
-        
-        document.getElementById('user-display-name').innerText = `👤 ${name} さん`;
-        showScreen('screen-home');
+        fetch(GAS_ENDPOINT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "login", studentId: studentId, password: password })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                appSettings.studentId = studentId;
+                appSettings.studentName = res.studentName;
+                localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
+                localStorage.setItem('seguchi_authenticated', 'true');
+                
+                document.getElementById('user-display-name').innerText = `👤 ${res.studentName} さん`;
+                showScreen('screen-home');
+            } else {
+                alert(res.message || "ログインに しっぱいしました");
+            }
+        })
+        .catch(err => {
+            console.log("通信エラー:", err);
+            alert("サーバーとのつうしんに しっぱいしました。");
+        });
     }
 
     function preloadAudios() {
@@ -344,10 +322,7 @@
 
     function stopAllAudio() {
         Object.keys(audioCache).forEach(key => {
-            if (audioCache[key]) {
-                audioCache[key].pause();
-                audioCache[key].currentTime = 0;
-            }
+            if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; }
         });
     }
 
@@ -373,167 +348,104 @@
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
     function startTraining() {
-        if (appSettings.enabledColors.length === 0) {
-            alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。");
-            return;
-        }
+        if (appSettings.enabledColors.length === 0) { alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。"); return; }
         renderTrainingButtons();
         showScreen('screen-training');
     }
 
     function renderTrainingButtons() {
-        const container = document.getElementById('training-container');
-        container.innerHTML = '';
+        const container = document.getElementById('training-container'); container.innerHTML = '';
         appSettings.enabledColors.forEach(key => {
             const data = COLOR_DATA[key];
-            const btn = document.createElement('button');
-            btn.className = 'btn-flag';
-            btn.style.backgroundColor = data.color;
+            const btn = document.createElement('button'); btn.className = 'btn-flag'; btn.style.backgroundColor = data.color;
             const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
             btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
-            btn.onclick = () => playChord(key);
-            container.appendChild(btn);
+            btn.onclick = () => playChord(key); container.appendChild(btn);
         });
     }
 
-    // Ver.2追加: 引数modeを受け取り、出題ロジックを分岐
     function startPractice(mode = 'normal') {
-        gameState.mode = mode;
-        gameState.currentStreak = 0;
-        gameState.bestStreak = 0;
-        gameState.colorStats = {}; // リセット
-        gameState.currentQuestionIndex = 0;
-        gameState.correctCount = 0;
-        gameState.questionsList = [];
+        gameState.mode = mode; gameState.currentStreak = 0; gameState.bestStreak = 0;
+        gameState.colorStats = {}; gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
         
         const pool = appSettings.enabledColors;
-        if (pool.length === 0) {
-            alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。");
-            return;
-        }
+        if (pool.length === 0) { alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。"); return; }
         
         for (let i = 0; i < appSettings.questionCount; i++) {
-            if (mode === 'normal') {
-                // 完全ランダム
-                gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
-            } else {
-                // Ver.2追加: もっとれんしゅう (重み付きランダム)
-                gameState.questionsList.push(getWeightedRandomColor(pool));
-            }
+            if (mode === 'normal') gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
+            else gameState.questionsList.push(getWeightedRandomColor(pool));
         }
         
-        renderFlagButtons();
-        nextQuestion();
+        renderFlagButtons(); nextQuestion();
     }
 
-    // Ver.2追加: 重み付きランダム抽選関数
     function getWeightedRandomColor(pool) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let weightedPool = [];
-        
         pool.forEach(key => {
             let stat = stats[key] || { total: 0, correct: 0 };
-            let weight = 3; // デフォルト (データ不足)
-            
+            let weight = 3; 
             if (stat.total >= 5) {
                 let pct = (stat.correct / stat.total) * 100;
-                if (pct >= 90) weight = 1;
-                else if (pct >= 70) weight = 2;
-                else if (pct >= 50) weight = 3;
-                else weight = 5; // 苦手音を一番多く
+                if (pct >= 90) weight = 1; else if (pct >= 70) weight = 2; else if (pct >= 50) weight = 3; else weight = 5; 
             }
-            
-            for(let i = 0; i < weight; i++) {
-                weightedPool.push(key);
-            }
+            for(let i = 0; i < weight; i++) { weightedPool.push(key); }
         });
-        
         return weightedPool[Math.floor(Math.random() * weightedPool.length)];
     }
 
     function confirmGoHome() {
         stopTimer();
-        if (confirm("れんしゅうを やめて ホームへ もどる？")) {
-            showScreen('screen-home');
-        } else {
-            startTimer();
-        }
+        if (confirm("れんしゅうを やめて ホームへ もどる？")) { showScreen('screen-home'); } 
+        else { startTimer(); }
     }
 
     function renderFlagButtons() {
-        const container = document.getElementById('flag-container');
-        container.innerHTML = '';
+        const container = document.getElementById('flag-container'); container.innerHTML = '';
         appSettings.enabledColors.forEach(key => {
             const data = COLOR_DATA[key];
-            const btn = document.createElement('button');
-            btn.className = 'btn-flag';
-            btn.style.backgroundColor = data.color;
+            const btn = document.createElement('button'); btn.className = 'btn-flag'; btn.style.backgroundColor = data.color;
             const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
             btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
-            btn.onclick = () => handleAnswer(key);
-            container.appendChild(btn);
+            btn.onclick = () => handleAnswer(key); container.appendChild(btn);
         });
     }
 
-    // Ver.2追加: レベルによる制限時間変更
     function startTimer() {
         stopTimer();
-        let currentLevel = parseInt(localStorage.getItem('rec_level') || '1');
-        timeLeft = LEVEL_TIME_LIMITS[currentLevel] || 10; 
+        timeLeft = 10; // 制限時間を10秒に固定
         
         document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
             timeLeft--;
             document.getElementById('timer-sec').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                stopTimer();
-                handleAnswer(null); 
-            }
+            if (timeLeft <= 0) { stopTimer(); handleAnswer(null); }
         }, 1000);
     }
 
-    function stopTimer() {
-        if (timerId) clearInterval(timerId);
-    }
+    function stopTimer() { if (timerId) clearInterval(timerId); }
 
     function nextQuestion() {
         isAnswering = false; 
-        
-        if (gameState.currentQuestionIndex >= appSettings.questionCount) {
-            endPractice();
-            return;
-        }
+        if (gameState.currentQuestionIndex >= appSettings.questionCount) { endPractice(); return; }
         gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
         document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
         showScreen('screen-practice');
-        setTimeout(() => { 
-            playCurrentChord();
-            startTimer();
-        }, 300);
+        setTimeout(() => { playCurrentChord(); startTimer(); }, 300);
     }
 
-    function goToNextQuestion() {
-        stopAllAudio(); 
-        gameState.currentQuestionIndex++;
-        nextQuestion();
-    }
+    function goToNextQuestion() { stopAllAudio(); gameState.currentQuestionIndex++; nextQuestion(); }
 
-    // Ver.2追加: 成績蓄積、連続正解、褒め言葉、テンポ改善を実装
     function handleAnswer(selectedKey) {
         if (isAnswering) return; 
-        isAnswering = true; 
-        
-        stopTimer(); 
+        isAnswering = true; stopTimer(); 
         
         let targetKey = gameState.currentColorKey;
-        
-        // 音別成績の読み込みと出題回数アップ
         let allStats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         if (!allStats[targetKey]) allStats[targetKey] = { total: 0, correct: 0 };
         if (!gameState.colorStats[targetKey]) gameState.colorStats[targetKey] = { total: 0, correct: 0 };
         
-        allStats[targetKey].total++;
-        gameState.colorStats[targetKey].total++;
+        allStats[targetKey].total++; gameState.colorStats[targetKey].total++;
         
         const isCorrect = (selectedKey === targetKey);
         const correctData = COLOR_DATA[targetKey];
@@ -544,72 +456,39 @@
         const btnNext = document.getElementById('btn-next');
         
         if (isCorrect) {
-            // 正解回数アップ
-            allStats[targetKey].correct++;
-            gameState.colorStats[targetKey].correct++;
+            allStats[targetKey].correct++; gameState.colorStats[targetKey].correct++;
+            gameState.correctCount++; gameState.currentStreak++;
+            if (gameState.currentStreak > gameState.bestStreak) { gameState.bestStreak = gameState.currentStreak; }
             
-            gameState.correctCount++;
-            gameState.currentStreak++;
-            if (gameState.currentStreak > gameState.bestStreak) {
-                gameState.bestStreak = gameState.currentStreak;
-            }
-            
-            resTitle.innerText = "⭕ せいかい！";
-            resTitle.style.color = "#4caf50";
-            
-            // 連続正解の褒め言葉
+            resTitle.innerText = "⭕ せいかい！"; resTitle.style.color = "#4caf50";
             let praise = "🌟 いいね！";
             if (gameState.currentStreak >= 15) praise = "👑 すごい！ めざせパーフェクト！";
             else if (gameState.currentStreak >= 10) praise = `🏆 ${gameState.currentStreak}れんぞく！ すごすぎる！`;
             else if (gameState.currentStreak >= 5) praise = `🔥🔥 ${gameState.currentStreak}れんぞく！ すごい！`;
             else if (gameState.currentStreak >= 3) praise = `🔥 ${gameState.currentStreak}れんぞく！`;
             
-            resComment.innerText = praise;
-            resInfo.style.display = "none";
-            btnReplay.style.display = "none";
-            btnNext.style.display = "block"; 
-            
+            resComment.innerText = praise; resInfo.style.display = "none"; btnReplay.style.display = "none"; btnNext.style.display = "block"; 
             showScreen('screen-judge');
-            
-            // 正解時の自動進行 (テンポ改善)
-            setTimeout(() => {
-                if (document.getElementById('screen-judge').classList.contains('active')) {
-                    goToNextQuestion();
-                }
-            }, 800); // 0.8秒で次へ
+            setTimeout(() => { if (document.getElementById('screen-judge').classList.contains('active')) { goToNextQuestion(); } }, 800);
             
         } else {
-            // 不正解時は連続記録リセット
             gameState.currentStreak = 0;
-            
             resTitle.innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ おしい！";
-            resTitle.style.color = "#f44336";
-            resComment.innerText = "💦"; 
+            resTitle.style.color = "#f44336"; resComment.innerText = "💦"; 
             resInfo.style.display = "block";
             resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}; font-size:24px; font-weight:bold;"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
-            btnReplay.style.display = "inline-block"; 
-            btnNext.style.display = "block";
+            btnReplay.style.display = "inline-block"; btnNext.style.display = "block";
             showScreen('screen-judge');
-
-            // 自動再生
-            setTimeout(() => {
-                if (document.getElementById('screen-judge').classList.contains('active')) {
-                    playChord(targetKey);
-                }
-            }, 300);
+            setTimeout(() => { if (document.getElementById('screen-judge').classList.contains('active')) { playChord(targetKey); } }, 300);
         }
-        
-        // 音別成績の保存
         localStorage.setItem('seguchi_color_stats', JSON.stringify(allStats));
     }
 
-    // Ver.2追加: レベル判定、過去最高連続正解、前回比較など多数追加
     function endPractice() {
         const total = appSettings.questionCount;
         const correct = gameState.correctCount;
         const percent = Math.round((correct / total) * 100);
         
-        // 前回との比較
         let prevPercent = localStorage.getItem('rec_last_percent');
         localStorage.setItem('rec_last_percent', percent);
         
@@ -621,28 +500,12 @@
             else diffMsg = `➖ 前回とおなじ！`;
         }
         
-        // 過去最高連続正解の更新
         let recBestStreak = parseInt(localStorage.getItem('rec_best_streak') || "0");
         if (gameState.bestStreak > recBestStreak) {
             recBestStreak = gameState.bestStreak;
             localStorage.setItem('rec_best_streak', recBestStreak);
         }
         
-        // レベル判定
-        let currentLevel = parseInt(localStorage.getItem('rec_level') || '1');
-        let levelMsg = "";
-        if (percent >= 80 && currentLevel < 5) {
-            currentLevel++;
-            levelMsg = `🎉 レベルアップ！<br>⭐ Lv.${currentLevel}になったよ！`;
-        } else if (percent < 50 && currentLevel > 1) {
-            currentLevel--;
-            levelMsg = `💪 つぎはもっとできるよ！<br>⭐ Lv.${currentLevel}`;
-        } else {
-            levelMsg = `⭐ Lv.${currentLevel}`;
-        }
-        localStorage.setItem('rec_level', currentLevel);
-        
-        // 結果画面の表示反映
         document.getElementById('result-score').innerText = `${total}もんちゅう ${correct}もんせいかい！`;
         document.getElementById('result-percent').innerText = `${percent}%`;
         
@@ -654,12 +517,10 @@
         document.getElementById('result-stars').innerText = stars;
 
         document.getElementById('result-best-streak').innerText = `🔥 さいこうれんぞく：${gameState.bestStreak}もん`;
-        document.getElementById('result-level-msg').innerHTML = levelMsg;
         document.getElementById('result-diff').innerText = diffMsg;
 
-        const totalCount = saveRecordToLocalStorage(percent);
+        const counts = saveRecordToLocalStorage(percent);
         
-        // GAS制作用のデータ整形
         let colorStatsForGas = {};
         for (let key in gameState.colorStats) {
             let st = gameState.colorStats[key];
@@ -671,15 +532,8 @@
         }
         
         sendDataToTeacherGAS(
-            appSettings.studentName, 
-            percent, 
-            `${correct}/${total}`, 
-            totalCount,
-            gameState.mode,
-            currentLevel,
-            gameState.bestStreak,
-            prevPercent !== null ? parseInt(prevPercent) : null,
-            colorStatsForGas
+            appSettings.studentId, appSettings.studentName, percent, 
+            `${correct}/${total}`, counts.total, counts.today, gameState.mode, gameState.bestStreak, colorStatsForGas
         );
 
         showScreen('screen-result');
@@ -690,49 +544,60 @@
         let recBest = parseInt(localStorage.getItem('rec_best') || "0");
         if (currentPercent > recBest) recBest = currentPercent;
         
-        let recStreak = parseInt(localStorage.getItem('rec_streak') || "0");
-        const todayStr = new Date().toLocaleDateString();
+        const todayStr = new Date().toLocaleDateString('ja-JP');
         const recLastDate = localStorage.getItem('rec_last_date') || "";
+        
+        let recStreak = parseInt(localStorage.getItem('rec_streak') || "0");
+        let recTodayCount = parseInt(localStorage.getItem('rec_today_count') || "0");
 
         if (recLastDate !== todayStr) {
             const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            if (recLastDate === yesterday.toLocaleDateString()) { recStreak++; } else { recStreak = 1; }
+            if (recLastDate === yesterday.toLocaleDateString('ja-JP')) { recStreak++; } 
+            else { recStreak = 1; }
+            recTodayCount = 1; 
+        } else {
+            recTodayCount++;
         }
 
-        let history = JSON.parse(localStorage.getItem('rec_history') || "[]");
-        history.push(currentPercent);
-        if (history.length > 10) history.shift();
+        let dailyHistory = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
+        if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== todayStr) {
+            dailyHistory.push({ date: todayStr, count: 1 });
+        } else {
+            dailyHistory[dailyHistory.length - 1].count = recTodayCount;
+        }
+        if (dailyHistory.length > 14) dailyHistory.shift(); 
 
         localStorage.setItem('rec_count', recCount);
+        localStorage.setItem('rec_today_count', recTodayCount);
         localStorage.setItem('rec_best', recBest);
         localStorage.setItem('rec_streak', recStreak);
         localStorage.setItem('rec_last_date', todayStr);
-        localStorage.setItem('rec_history', JSON.stringify(history));
+        localStorage.setItem('rec_daily_history', JSON.stringify(dailyHistory));
         
-        return recCount;
+        return { total: recCount, today: recTodayCount };
     }
 
-    // Ver.2追加: GASへの送信データに mode, level, bestStreak, previousPercent, colorStats を追加
-    function sendDataToTeacherGAS(studentName, percent, scoreStr, totalCount, mode, level, bestStreak, prevPercent, colorStats) {
+    function sendDataToTeacherGAS(studentId, studentName, percent, scoreStr, totalCount, todayCount, mode, bestStreak, colorStats) {
         if (!GAS_ENDPOINT_URL || GAS_ENDPOINT_URL.includes("ここに")) return;
         
         const payload = {
+            action: "saveRecord",
+            studentId: studentId,
             studentName: studentName,
             percent: percent,
             score: scoreStr,
             totalCount: totalCount,
+            todayCount: todayCount,
             timestamp: new Date().toLocaleString("ja-JP"),
             mode: mode || "normal",
-            level: level || 1,
             bestStreak: bestStreak || 0,
-            previousPercent: prevPercent,
             colorStats: JSON.stringify(colorStats || {})
         };
 
         fetch(GAS_ENDPOINT_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         }).catch(err => console.log("送信エラー:", err));
     }
@@ -740,68 +605,52 @@
     function updateRecordScreen() {
         document.getElementById('rec-name').innerText = appSettings.studentName || "-";
         document.getElementById('rec-count').innerText = localStorage.getItem('rec_count') || "0";
+        document.getElementById('rec-today-count').innerText = localStorage.getItem('rec_today_count') || "0";
         document.getElementById('rec-best').innerText = localStorage.getItem('rec_best') || "0";
         document.getElementById('rec-streak').innerText = localStorage.getItem('rec_streak') || "0";
-        
-        // Ver.2追加
-        document.getElementById('rec-level').innerText = localStorage.getItem('rec_level') || "1";
         document.getElementById('rec-best-streak').innerText = localStorage.getItem('rec_best_streak') || "0";
-        renderColorStats(); // 得意・苦手リスト生成
-
+        renderColorStats();
         renderRecordChart();
     }
     
-    // Ver.2追加: 記録画面に各音の正答率と苦手な音を表示する関数
     function renderColorStats() {
         const stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         const container = document.getElementById('rec-color-stats');
         const weakContainer = document.getElementById('rec-weak-colors');
-        container.innerHTML = '';
-        weakContainer.innerHTML = '';
+        container.innerHTML = ''; weakContainer.innerHTML = '';
         
         let validStats = [];
-        
         appSettings.enabledColors.forEach(key => {
-            const stat = stats[key];
-            const data = COLOR_DATA[key];
+            const stat = stats[key]; const data = COLOR_DATA[key];
             if (stat && stat.total > 0) {
                 const pct = Math.round((stat.correct / stat.total) * 100);
                 validStats.push({ key: key, emoji: data.emoji, name: data.name, pct: pct, total: stat.total });
                 
                 let evalMark = "";
-                if (pct >= 80) evalMark = "✨ 得意";
-                else if (pct >= 60) evalMark = "👍 もう少し";
-                else evalMark = "⚠️ 苦手";
+                if (pct >= 80) evalMark = "✨ 得意"; else if (pct >= 60) evalMark = "👍 もう少し"; else evalMark = "⚠️ 苦手";
                 
                 let item = document.createElement('div');
-                item.style.marginBottom = "8px";
-                item.style.borderBottom = "1px dashed #eee";
-                item.style.paddingBottom = "4px";
-                item.innerHTML = `${data.emoji} ${data.name}　<span style="font-weight:bold;">${pct}%</span> <span style="font-size: 13px; color: #666;">(${evalMark})</span>`;
+                item.style.marginBottom = "8px"; item.style.borderBottom = "1px dashed #eee"; item.style.paddingBottom = "4px";
+                item.innerHTML = `${data.emoji} ${data.name} <span style="font-weight:bold;">${pct}%</span> <span style="font-size: 13px; color: #666;">(${evalMark})</span>`;
                 container.appendChild(item);
             }
         });
         
         if (validStats.length === 0) {
             container.innerHTML = '<div style="color: #666;">まだデータがありません</div>';
-            weakContainer.innerHTML = '<div style="color: #666;">-</div>';
-            return;
+            weakContainer.innerHTML = '<div style="color: #666;">-</div>'; return;
         }
         
-        // 苦手音抽出 (60%未満のものを正答率が低い順に並べる)
         validStats.sort((a, b) => a.pct - b.pct);
         let weakList = validStats.filter(s => s.pct < 60);
         
         if (weakList.length === 0) {
             weakContainer.innerHTML = '<div style="color: #4caf50; font-weight: bold;">なし 🎉 ぜんぶとくい！</div>';
         } else {
-            // 最大3つまで表示
             for (let i = 0; i < weakList.length && i < 3; i++) {
                 let w = weakList[i];
                 let item = document.createElement('div');
-                item.style.color = "#d32f2f";
-                item.style.fontWeight = "bold";
-                item.style.marginBottom = "4px";
+                item.style.color = "#d32f2f"; item.style.fontWeight = "bold"; item.style.marginBottom = "4px";
                 item.innerHTML = `⚠️ ${w.emoji} ${w.name}：${w.pct}%`;
                 weakContainer.appendChild(item);
             }
@@ -809,49 +658,41 @@
     }
 
     function renderRecordChart() {
-        const history = JSON.parse(localStorage.getItem('rec_history') || "[]");
+        const history = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
         const ctx = document.getElementById('recordChart').getContext('2d');
 
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
+        if (chartInstance) chartInstance.destroy();
 
-        const labels = history.map((_, index) => {
-            const reverseIndex = history.length - 1 - index;
-            if (reverseIndex === 0) return '今回';
-            if (reverseIndex === 1) return '前回';
-            return `${reverseIndex}回前`;
+        // 日付を「8/13」のように短くフォーマットする
+        const labels = history.map(item => {
+            let parts = item.date.split('/');
+            return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
         });
+        const data = history.map(item => item.count);
 
         chartInstance = new Chart(ctx, {
-            type: 'line',
+            type: 'bar', // 推移がわかりやすいように棒グラフに設定
             data: {
                 labels: labels.length ? labels : ['データなし'],
                 datasets: [{
-                    label: '正答率 (%)',
-                    data: history.length ? history : [0],
-                    borderColor: '#2196f3',
-                    backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.3,
-                    fill: true,
-                    pointBackgroundColor: '#ff9800',
-                    pointRadius: 5
+                    label: '練習回数 (回)',
+                    data: data.length ? data : [0],
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                    borderColor: '#4caf50',
+                    borderWidth: 1,
+                    borderRadius: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        min: 0,
-                        max: 100,
-                        ticks: { stepSize: 20 }
-                    }
+                scales: { 
+                    y: { 
+                        min: 0, 
+                        ticks: { stepSize: 1 } // 回数なので1刻み
+                    } 
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }
@@ -864,10 +705,7 @@
     function verifyPasscode() {
         if (document.getElementById('pin-field').value === appSettings.parentPin) {
             syncSettingsToUI(); showScreen('screen-settings');
-        } else {
-            alert("パスコードが ちがいます");
-            document.getElementById('pin-field').value = "";
-        }
+        } else { alert("パスコードが ちがいます"); document.getElementById('pin-field').value = ""; }
     }
 
     function renderSettingsColors() {
