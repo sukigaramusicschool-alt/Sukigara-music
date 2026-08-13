@@ -1,3 +1,4 @@
+アプリ
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -20,7 +21,6 @@
             display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
         .container {
-            /* 最大幅を広げて余白を減らしました (480px -> 640px) */
             width: 100%; max-width: 640px; height: 100vh; max-height: 900px;
             background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             overflow-y: auto; position: relative; display: flex; flex-direction: column; padding: 20px;
@@ -39,6 +39,9 @@
         .emoji-large { font-size: 64px; margin-bottom: 20px; }
         .info-text { font-size: 18px; margin: 10px 0; font-weight: bold; }
         .sub-text { font-size: 14px; color: #666; margin-bottom: 20px; }
+        
+        /* Ver.2追加: 判定画面の褒め言葉用スタイル */
+        .judge-comment-text { font-size: 32px; font-weight: bold; margin-bottom: 20px; }
 
         .btn {
             width: 100%; padding: 18px; font-size: 20px; font-weight: bold;
@@ -51,6 +54,9 @@
         .btn-orange { background-color: #ff9800; color: white; }
         .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
+        
+        /* Ver.2追加: もっとれんしゅう用ボタン色 */
+        .btn-danger { background-color: #f44336; color: white; } 
 
         .btn-home-mini {
             position: absolute; top: 15px; right: 15px; width: 40px; height: 40px;
@@ -66,7 +72,6 @@
         }
 
         .flag-list { 
-            /* ボタンの並びを3列から4列に変更しました */
             width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); 
             gap: 12px; margin-top: 15px; padding-bottom: 20px;
         }
@@ -127,7 +132,9 @@
         </div>
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         <div style="width: 100%;">
-            <button class="btn btn-main" onclick="startPractice()">▶ れんしゅうする</button>
+            <!-- Ver.2追加: れんしゅうともっとれんしゅうを分離 -->
+            <button class="btn btn-main" onclick="startPractice('normal')">▶ れんしゅうする</button>
+            <button class="btn btn-danger" onclick="startPractice('weakness')">🔥 もっとれんしゅう</button>
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
             <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
             <button class="btn btn-gray" onclick="slideIntoSettings()">⚙ せってい</button>
@@ -160,10 +167,10 @@
     <!-- 3. 結果判定画面 -->
     <div id="screen-judge" class="screen">
         <div id="judge-result" class="judge-display">⭕ せいかい！</div>
-        <div id="judge-comment" class="emoji-large">🌟</div>
+        <!-- Ver.2追加: 褒め言葉が長くなるためクラス変更 -->
+        <div id="judge-comment" class="judge-comment-text">🌟 いいね！</div>
         <div id="judge-correct-info" class="info-text" style="display:none; margin-bottom: 10px;"></div>
         
-        <!-- 手動でも正解の音声を聴き直せるボタンを追加（欲張りセット） -->
         <button id="btn-replay-correct" class="btn btn-sub" style="width: 80%; padding: 10px; font-size: 16px; margin-bottom: 10px; border-radius: 20px; display: none;" onclick="playCurrentChord()">🎵 せいかいの おとを きく</button>
         
         <button id="btn-next" class="btn btn-main" onclick="goToNextQuestion()" style="width: 80%; padding: 15px; margin-top: 5px;">つぎへ ▶</button>
@@ -171,24 +178,45 @@
 
     <!-- 4. 練習終了画面 -->
     <div id="screen-result" class="screen">
-        <div class="emoji-large">🎉</div>
+        <div class="emoji-large" style="margin-bottom: 10px;">🎉</div>
         <h2>おつかれさま！</h2>
-        <div id="result-score" class="info-text" style="font-size: 24px; margin: 15px 0;">10もんちゅう 8もんせいかい！</div>
-        <div id="result-percent" style="font-size: 28px; font-weight: bold; color: #ff5722; margin-bottom: 10px;">80%</div>
-        <div id="result-stars" style="font-size: 32px; color: #ffc107; margin-bottom: 20px;">⭐⭐⭐⭐</div>
+        
+        <!-- Ver.2追加: レベルと最高連続正解、前回との比較 -->
+        <div id="result-level-msg" class="info-text" style="color: #2196f3; margin: 5px 0;">⭐ Lv.1</div>
+        
+        <div id="result-score" class="info-text" style="font-size: 24px; margin: 10px 0;">10もんちゅう 8もんせいかい！</div>
+        <div id="result-percent" style="font-size: 28px; font-weight: bold; color: #ff5722; margin-bottom: 5px;">80%</div>
+        
+        <div id="result-diff" class="sub-text" style="margin-bottom: 5px; font-weight: bold;">🌱 はじめてのきろく！</div>
+        <div id="result-stars" style="font-size: 32px; color: #ffc107; margin-bottom: 10px;">⭐⭐⭐⭐</div>
+        
+        <div id="result-best-streak" class="info-text" style="margin-bottom: 20px; color: #e91e63;">🔥 さいこうれんぞく：5もん</div>
+
         <button class="btn btn-main" onclick="showScreen('screen-home')">ホームへもどる</button>
     </div>
 
-    <!-- 5. 記録画面（グラフ表示追加） -->
+    <!-- 5. 記録画面 -->
     <div id="screen-record" class="screen">
         <h2>📈 きろく</h2>
         <div class="form-group" style="margin-top:10px; font-size: 16px; line-height: 1.8; padding: 12px;">
             <div>👤 おなまえ： <span id="rec-name" style="font-weight:bold;">-</span></div>
+            <!-- Ver.2追加 -->
+            <div>⭐ 現在レベル： Lv.<span id="rec-level" style="font-weight:bold; color:#2196f3;">1</span></div>
+            <div>🏆 さいこうれんぞく： <span id="rec-best-streak" style="font-weight:bold; color:#ff9800;">0</span> もん</div>
+            
             <div>🔥 れんぞくにっすう： <span id="rec-streak" style="font-weight:bold; color:#e91e63;">0</span> にち</div>
             <div>🏆 さいこうきろく： <span id="rec-best" style="font-weight:bold; color:#4caf50;">0</span> %</div>
             <div>📊 れんしゅうかいすう： <span id="rec-count" style="font-weight:bold;">0</span> かい</div>
             
-            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 さいきんの せいせき すいい</div>
+            <!-- Ver.2追加 苦手音表示 -->
+            <div style="font-weight:bold; margin-top: 15px; color: #d32f2f;">⚠️ にがてなおと</div>
+            <div id="rec-weak-colors" style="background: #ffebee; padding: 10px; border-radius: 8px; margin-bottom: 15px;">-</div>
+
+            <!-- Ver.2追加 音の得意・苦手リスト -->
+            <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
+            <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
+
+            <div style="font-weight:bold; margin-top: 15px; color: #333;">📊 さいきんの せいせき すいい</div>
             <div class="chart-container">
                 <canvas id="recordChart"></canvas>
             </div>
@@ -227,7 +255,10 @@
 
 <script>
     const CLASS_PASSCODE = "2026"; 
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzIgqY5NQagLuinKJ2jhGQx6J_3EO2PiAQdNsoYJKstobsQm18flafeJgt9nTitc1tmaQ/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyUaOIhTTJnhI7p1YotfnHmqGo2RLudQw-_YKkXvyfSkmutMJbpefdSt7AJAlO_ZFC7rQ/exec";
+    
+    // Ver.2追加: レベル別制限時間
+    const LEVEL_TIME_LIMITS = { 1: 10, 2: 7, 3: 5, 4: 3, 5: 2 };
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -247,7 +278,19 @@
     };
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentName: "" };
-    let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "" };
+    
+    // Ver.2追加: gameStateにmode, streak等の管理を追加
+    let gameState = { 
+        currentQuestionIndex: 0, 
+        correctCount: 0, 
+        questionsList: [], 
+        currentColorKey: "",
+        mode: "normal",
+        currentStreak: 0,
+        bestStreak: 0,
+        colorStats: {} // 今回の練習用の音別成績一時保存
+    };
+    
     let timerId = null;
     let timeLeft = 10;
     const audioCache = {};
@@ -299,7 +342,6 @@
         });
     }
 
-    // すべての再生中音声を即座に停止する処理
     function stopAllAudio() {
         Object.keys(audioCache).forEach(key => {
             if (audioCache[key]) {
@@ -310,7 +352,7 @@
     }
 
     function showScreen(screenId) {
-        stopAllAudio(); // 画面切替時は常に音声を強制停止（音の重なりを回避）
+        stopAllAudio(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
     }
@@ -322,7 +364,7 @@
 
     function playChord(colorKey) {
         if (!colorKey || !audioCache[colorKey]) return;
-        stopAllAudio(); // 新しく音を鳴らす前にも前の音を停止
+        stopAllAudio(); 
         const audio = audioCache[colorKey];
         audio.currentTime = 0;
         audio.play().catch(e => console.log("Audio play error:", e));
@@ -354,20 +396,59 @@
         });
     }
 
-    function startPractice() {
+    // Ver.2追加: 引数modeを受け取り、出題ロジックを分岐
+    function startPractice(mode = 'normal') {
+        gameState.mode = mode;
+        gameState.currentStreak = 0;
+        gameState.bestStreak = 0;
+        gameState.colorStats = {}; // リセット
         gameState.currentQuestionIndex = 0;
         gameState.correctCount = 0;
         gameState.questionsList = [];
+        
         const pool = appSettings.enabledColors;
         if (pool.length === 0) {
             alert("せっていがめんで しゅつだいするボタンを 1つえらんでね。");
             return;
         }
+        
         for (let i = 0; i < appSettings.questionCount; i++) {
-            gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
+            if (mode === 'normal') {
+                // 完全ランダム
+                gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
+            } else {
+                // Ver.2追加: もっとれんしゅう (重み付きランダム)
+                gameState.questionsList.push(getWeightedRandomColor(pool));
+            }
         }
+        
         renderFlagButtons();
         nextQuestion();
+    }
+
+    // Ver.2追加: 重み付きランダム抽選関数
+    function getWeightedRandomColor(pool) {
+        let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
+        let weightedPool = [];
+        
+        pool.forEach(key => {
+            let stat = stats[key] || { total: 0, correct: 0 };
+            let weight = 3; // デフォルト (データ不足)
+            
+            if (stat.total >= 5) {
+                let pct = (stat.correct / stat.total) * 100;
+                if (pct >= 90) weight = 1;
+                else if (pct >= 70) weight = 2;
+                else if (pct >= 50) weight = 3;
+                else weight = 5; // 苦手音を一番多く
+            }
+            
+            for(let i = 0; i < weight; i++) {
+                weightedPool.push(key);
+            }
+        });
+        
+        return weightedPool[Math.floor(Math.random() * weightedPool.length)];
     }
 
     function confirmGoHome() {
@@ -394,9 +475,12 @@
         });
     }
 
+    // Ver.2追加: レベルによる制限時間変更
     function startTimer() {
         stopTimer();
-        timeLeft = 10;
+        let currentLevel = parseInt(localStorage.getItem('rec_level') || '1');
+        timeLeft = LEVEL_TIME_LIMITS[currentLevel] || 10; 
+        
         document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
             timeLeft--;
@@ -429,53 +513,136 @@
     }
 
     function goToNextQuestion() {
-        stopAllAudio(); // 「つぎへ」を押したら正解音声の自動再生も即座にキャンセル
+        stopAllAudio(); 
         gameState.currentQuestionIndex++;
         nextQuestion();
     }
 
+    // Ver.2追加: 成績蓄積、連続正解、褒め言葉、テンポ改善を実装
     function handleAnswer(selectedKey) {
         if (isAnswering) return; 
         isAnswering = true; 
         
         stopTimer(); 
-        const isCorrect = (selectedKey === gameState.currentColorKey);
-        const correctData = COLOR_DATA[gameState.currentColorKey];
+        
+        let targetKey = gameState.currentColorKey;
+        
+        // 音別成績の読み込みと出題回数アップ
+        let allStats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
+        if (!allStats[targetKey]) allStats[targetKey] = { total: 0, correct: 0 };
+        if (!gameState.colorStats[targetKey]) gameState.colorStats[targetKey] = { total: 0, correct: 0 };
+        
+        allStats[targetKey].total++;
+        gameState.colorStats[targetKey].total++;
+        
+        const isCorrect = (selectedKey === targetKey);
+        const correctData = COLOR_DATA[targetKey];
         const resTitle = document.getElementById('judge-result');
         const resComment = document.getElementById('judge-comment');
         const resInfo = document.getElementById('judge-correct-info');
         const btnReplay = document.getElementById('btn-replay-correct');
+        const btnNext = document.getElementById('btn-next');
         
         if (isCorrect) {
+            // 正解回数アップ
+            allStats[targetKey].correct++;
+            gameState.colorStats[targetKey].correct++;
+            
             gameState.correctCount++;
+            gameState.currentStreak++;
+            if (gameState.currentStreak > gameState.bestStreak) {
+                gameState.bestStreak = gameState.currentStreak;
+            }
+            
             resTitle.innerText = "⭕ せいかい！";
             resTitle.style.color = "#4caf50";
-            resComment.innerText = "🌟 すごい！";
+            
+            // 連続正解の褒め言葉
+            let praise = "🌟 いいね！";
+            if (gameState.currentStreak >= 15) praise = "👑 すごい！ めざせパーフェクト！";
+            else if (gameState.currentStreak >= 10) praise = `🏆 ${gameState.currentStreak}れんぞく！ すごすぎる！`;
+            else if (gameState.currentStreak >= 5) praise = `🔥🔥 ${gameState.currentStreak}れんぞく！ すごい！`;
+            else if (gameState.currentStreak >= 3) praise = `🔥 ${gameState.currentStreak}れんぞく！`;
+            
+            resComment.innerText = praise;
             resInfo.style.display = "none";
             btnReplay.style.display = "none";
+            btnNext.style.display = "block"; 
+            
             showScreen('screen-judge');
-        } else {
-            resTitle.innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ おしい！";
-            resTitle.style.color = "#f44336";
-            resComment.innerText = "☁";
-            resInfo.style.display = "block";
-            resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
-            btnReplay.style.display = "inline-block"; // 不正解時は手動ボタンも表示
-            showScreen('screen-judge');
-
-            // 自動再生（欲張りセット：自動再生しつつ、「つぎへ」で即時カット可能）
+            
+            // 正解時の自動進行 (テンポ改善)
             setTimeout(() => {
                 if (document.getElementById('screen-judge').classList.contains('active')) {
-                    playChord(gameState.currentColorKey);
+                    goToNextQuestion();
+                }
+            }, 800); // 0.8秒で次へ
+            
+        } else {
+            // 不正解時は連続記録リセット
+            gameState.currentStreak = 0;
+            
+            resTitle.innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ おしい！";
+            resTitle.style.color = "#f44336";
+            resComment.innerText = "💦"; 
+            resInfo.style.display = "block";
+            resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}; font-size:24px; font-weight:bold;"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
+            btnReplay.style.display = "inline-block"; 
+            btnNext.style.display = "block";
+            showScreen('screen-judge');
+
+            // 自動再生
+            setTimeout(() => {
+                if (document.getElementById('screen-judge').classList.contains('active')) {
+                    playChord(targetKey);
                 }
             }, 300);
         }
+        
+        // 音別成績の保存
+        localStorage.setItem('seguchi_color_stats', JSON.stringify(allStats));
     }
 
+    // Ver.2追加: レベル判定、過去最高連続正解、前回比較など多数追加
     function endPractice() {
         const total = appSettings.questionCount;
         const correct = gameState.correctCount;
         const percent = Math.round((correct / total) * 100);
+        
+        // 前回との比較
+        let prevPercent = localStorage.getItem('rec_last_percent');
+        localStorage.setItem('rec_last_percent', percent);
+        
+        let diffMsg = "🌱 はじめてのきろく！";
+        if (prevPercent !== null) {
+            let diff = percent - parseInt(prevPercent);
+            if (diff > 0) diffMsg = `📈 前回より +${diff}%`;
+            else if (diff < 0) diffMsg = `📉 前回より ${diff}%`;
+            else diffMsg = `➖ 前回とおなじ！`;
+        }
+        
+        // 過去最高連続正解の更新
+        let recBestStreak = parseInt(localStorage.getItem('rec_best_streak') || "0");
+        if (gameState.bestStreak > recBestStreak) {
+            recBestStreak = gameState.bestStreak;
+            localStorage.setItem('rec_best_streak', recBestStreak);
+        }
+        
+        // レベル判定
+        let currentLevel = parseInt(localStorage.getItem('rec_level') || '1');
+        let levelMsg = "";
+        if (percent >= 80 && currentLevel < 5) {
+            currentLevel++;
+            levelMsg = `🎉 レベルアップ！<br>⭐ Lv.${currentLevel}になったよ！`;
+        } else if (percent < 50 && currentLevel > 1) {
+            currentLevel--;
+            levelMsg = `💪 つぎはもっとできるよ！<br>⭐ Lv.${currentLevel}`;
+        } else {
+            levelMsg = `⭐ Lv.${currentLevel}`;
+        }
+        localStorage.setItem('rec_level', currentLevel);
+        
+        // 結果画面の表示反映
         document.getElementById('result-score').innerText = `${total}もんちゅう ${correct}もんせいかい！`;
         document.getElementById('result-percent').innerText = `${percent}%`;
         
@@ -486,8 +653,34 @@
         else if (percent >= 20) stars = "⭐⭐";
         document.getElementById('result-stars').innerText = stars;
 
+        document.getElementById('result-best-streak').innerText = `🔥 さいこうれんぞく：${gameState.bestStreak}もん`;
+        document.getElementById('result-level-msg').innerHTML = levelMsg;
+        document.getElementById('result-diff').innerText = diffMsg;
+
         const totalCount = saveRecordToLocalStorage(percent);
-        sendDataToTeacherGAS(appSettings.studentName, percent, `${correct}/${total}`, totalCount);
+        
+        // GAS制作用のデータ整形
+        let colorStatsForGas = {};
+        for (let key in gameState.colorStats) {
+            let st = gameState.colorStats[key];
+            colorStatsForGas[key] = {
+                total: st.total,
+                correct: st.correct,
+                percent: st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0
+            };
+        }
+        
+        sendDataToTeacherGAS(
+            appSettings.studentName, 
+            percent, 
+            `${correct}/${total}`, 
+            totalCount,
+            gameState.mode,
+            currentLevel,
+            gameState.bestStreak,
+            prevPercent !== null ? parseInt(prevPercent) : null,
+            colorStatsForGas
+        );
 
         showScreen('screen-result');
     }
@@ -506,7 +699,6 @@
             if (recLastDate === yesterday.toLocaleDateString()) { recStreak++; } else { recStreak = 1; }
         }
 
-        // グラフ用履歴データの追加保存（直近10件）
         let history = JSON.parse(localStorage.getItem('rec_history') || "[]");
         history.push(currentPercent);
         if (history.length > 10) history.shift();
@@ -520,7 +712,8 @@
         return recCount;
     }
 
-    function sendDataToTeacherGAS(studentName, percent, scoreStr, totalCount) {
+    // Ver.2追加: GASへの送信データに mode, level, bestStreak, previousPercent, colorStats を追加
+    function sendDataToTeacherGAS(studentName, percent, scoreStr, totalCount, mode, level, bestStreak, prevPercent, colorStats) {
         if (!GAS_ENDPOINT_URL || GAS_ENDPOINT_URL.includes("ここに")) return;
         
         const payload = {
@@ -528,7 +721,12 @@
             percent: percent,
             score: scoreStr,
             totalCount: totalCount,
-            timestamp: new Date().toLocaleString("ja-JP")
+            timestamp: new Date().toLocaleString("ja-JP"),
+            mode: mode || "normal",
+            level: level || 1,
+            bestStreak: bestStreak || 0,
+            previousPercent: prevPercent,
+            colorStats: JSON.stringify(colorStats || {})
         };
 
         fetch(GAS_ENDPOINT_URL, {
@@ -544,11 +742,72 @@
         document.getElementById('rec-count').innerText = localStorage.getItem('rec_count') || "0";
         document.getElementById('rec-best').innerText = localStorage.getItem('rec_best') || "0";
         document.getElementById('rec-streak').innerText = localStorage.getItem('rec_streak') || "0";
+        
+        // Ver.2追加
+        document.getElementById('rec-level').innerText = localStorage.getItem('rec_level') || "1";
+        document.getElementById('rec-best-streak').innerText = localStorage.getItem('rec_best_streak') || "0";
+        renderColorStats(); // 得意・苦手リスト生成
 
         renderRecordChart();
     }
+    
+    // Ver.2追加: 記録画面に各音の正答率と苦手な音を表示する関数
+    function renderColorStats() {
+        const stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
+        const container = document.getElementById('rec-color-stats');
+        const weakContainer = document.getElementById('rec-weak-colors');
+        container.innerHTML = '';
+        weakContainer.innerHTML = '';
+        
+        let validStats = [];
+        
+        appSettings.enabledColors.forEach(key => {
+            const stat = stats[key];
+            const data = COLOR_DATA[key];
+            if (stat && stat.total > 0) {
+                const pct = Math.round((stat.correct / stat.total) * 100);
+                validStats.push({ key: key, emoji: data.emoji, name: data.name, pct: pct, total: stat.total });
+                
+                let evalMark = "";
+                if (pct >= 80) evalMark = "✨ 得意";
+                else if (pct >= 60) evalMark = "👍 もう少し";
+                else evalMark = "⚠️ 苦手";
+                
+                let item = document.createElement('div');
+                item.style.marginBottom = "8px";
+                item.style.borderBottom = "1px dashed #eee";
+                item.style.paddingBottom = "4px";
+                item.innerHTML = `${data.emoji} ${data.name}　<span style="font-weight:bold;">${pct}%</span> <span style="font-size: 13px; color: #666;">(${evalMark})</span>`;
+                container.appendChild(item);
+            }
+        });
+        
+        if (validStats.length === 0) {
+            container.innerHTML = '<div style="color: #666;">まだデータがありません</div>';
+            weakContainer.innerHTML = '<div style="color: #666;">-</div>';
+            return;
+        }
+        
+        // 苦手音抽出 (60%未満のものを正答率が低い順に並べる)
+        validStats.sort((a, b) => a.pct - b.pct);
+        let weakList = validStats.filter(s => s.pct < 60);
+        
+        if (weakList.length === 0) {
+            weakContainer.innerHTML = '<div style="color: #4caf50; font-weight: bold;">なし 🎉 ぜんぶとくい！</div>';
+        } else {
+            // 最大3つまで表示
+            for (let i = 0; i < weakList.length && i < 3; i++) {
+                let w = weakList[i];
+                let item = document.createElement('div');
+                item.style.color = "#d32f2f";
+                item.style.fontWeight = "bold";
+                item.style.marginBottom = "4px";
+                item.innerHTML = `⚠️ ${w.emoji} ${w.name}：${w.pct}%`;
+                weakContainer.appendChild(item);
+            }
+        }
+    }
 
-    // Chart.jsによる成績推移グラフの描画関数
     function renderRecordChart() {
         const history = JSON.parse(localStorage.getItem('rec_history') || "[]");
         const ctx = document.getElementById('recordChart').getContext('2d');
@@ -557,7 +816,6 @@
             chartInstance.destroy();
         }
 
-        // グラフのラベルを新しい順に「今回」「前回」「2回前」...となるように修正
         const labels = history.map((_, index) => {
             const reverseIndex = history.length - 1 - index;
             if (reverseIndex === 0) return '今回';
