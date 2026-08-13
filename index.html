@@ -53,6 +53,7 @@
         .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
         .btn-danger { background-color: #f44336; color: white; } 
+        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: #666; box-shadow: none; }
 
         .btn-home-mini {
             position: absolute; top: 15px; right: 15px; width: 40px; height: 40px;
@@ -107,7 +108,7 @@
     <!-- 0. 生徒個別ID・パスワード認証画面 -->
     <div id="screen-auth" class="screen active">
         <div class="logo-area">
-            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
+            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'">
         </div>
         <h2>🔑 ログイン</h2>
         <p class="sub-text">せいとID と パスワードを 入れてね</p>
@@ -119,7 +120,7 @@
     <!-- 1. ホーム画面 -->
     <div id="screen-home" class="screen">
         <div class="logo-area">
-            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large">
+            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'">
         </div>
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         <div style="width: 100%;">
@@ -128,13 +129,16 @@
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
             <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
             <button class="btn btn-gray" onclick="slideIntoSettings()">⚙ せってい</button>
+            
+            <!-- 【修正1】ログアウトボタンを追加 -->
+            <button class="btn btn-outline" onclick="logoutStudent()" style="margin-top: 25px; padding: 12px; font-size: 16px;">🚪 ログアウト</button>
         </div>
     </div>
 
     <!-- 1.5 修行モード画面 -->
     <div id="screen-training" class="screen">
         <button class="btn-home-mini" onclick="showScreen('screen-home')" title="ホームへもどる">🏠</button>
-        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
+        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small" onerror="this.style.display='none'">
         <h2>🎹 しゅぎょうモード</h2>
         <p class="sub-text" style="margin-top: 0; margin-bottom: 10px;">すきなボタンをおして 音をたしかめよう</p>
         <div id="training-container" class="flag-list"></div>
@@ -143,7 +147,7 @@
     <!-- 2. 練習画面 -->
     <div id="screen-practice" class="screen">
         <button class="btn-home-mini" onclick="confirmGoHome()" title="ホームへもどる">🏠</button>
-        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small">
+        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small" onerror="this.style.display='none'">
         <div id="practice-progress" class="info-text" style="margin-top: -5px;">もんだい 1 / 10</div>
         <div class="timer-box">⏱ のこり <span id="timer-sec">10</span> びょう</div>
         <button class="btn btn-sub" style="width: auto; padding: 8px 20px; font-size: 16px; margin-bottom: 5px; border-radius: 20px;" onclick="playCurrentChord()">🎵 もういちどきく</button>
@@ -172,9 +176,10 @@
     </div>
 
     <!-- 5. 記録画面 -->
-    <div id="screen-record" class="screen">
-        <h2>📈 きろく</h2>
-        <div class="form-group" style="margin-top:10px; font-size: 16px; line-height: 1.8; padding: 12px;">
+    <!-- 【修正2】上部が見切れないように justify-content: flex-start と上部余白(padding-top)を設定 -->
+    <div id="screen-record" class="screen" style="justify-content: flex-start; padding-top: 30px;">
+        <h2 style="margin-bottom: 20px;">📈 きろく</h2>
+        <div class="form-group" style="margin-top:0; font-size: 16px; line-height: 1.8; padding: 12px; width: 100%;">
             <div>👤 おなまえ： <span id="rec-name" style="font-weight:bold;">-</span></div>
             <div>🏆 さいこうれんぞく： <span id="rec-best-streak" style="font-weight:bold; color:#ff9800;">0</span> もん</div>
             <div>🔥 れんぞくにっすう： <span id="rec-streak" style="font-weight:bold; color:#e91e63;">0</span> にち</div>
@@ -190,7 +195,6 @@
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
             
-            <!-- グラフ表示エリア -->
             <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 日々のせいとうりつ (最高%)</div>
             <div class="chart-container">
                 <canvas id="accuracyChart"></canvas>
@@ -201,7 +205,7 @@
                 <canvas id="countChart"></canvas>
             </div>
         </div>
-        <button class="btn btn-back" onclick="showScreen('screen-home')">もどる</button>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">もどる</button>
     </div>
 
     <!-- 5.5 保護者用設定保護パスコード画面 -->
@@ -214,13 +218,13 @@
     </div>
 
     <!-- 6. 設定画面 -->
-    <div id="screen-settings" class="screen">
-        <h2>⚙ 設定（保護者用）</h2>
-        <div class="form-group">
+    <div id="screen-settings" class="screen" style="justify-content: flex-start; padding-top: 30px;">
+        <h2 style="margin-bottom: 20px;">⚙ 設定（保護者用）</h2>
+        <div class="form-group" style="width: 100%;">
             <label>出題するボタン（色・音階）</label>
             <div id="settings-colors" class="checkbox-grid"></div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="width: 100%;">
             <label>問題数</label>
             <div class="radio-group">
                 <label><input type="radio" name="setting-count" value="10" checked> 10問</label>
@@ -234,7 +238,8 @@
 </div>
 
 <script>
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyyMch-MfxNer2-4lLJezjim1KzlH-10KfRqZnNn4h_aOPiUKRd81JOkw4jCaerwfxh/exec";
+    // ↓ ★ご自身のGASデプロイURLに書き換えてください！★ ↓
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyLNBBW6rnHqkSaBpFoTuxpBZLsAGahW5Zvp2MpTZLxfOUSjeAEicmVCxrZw1wCfpXl/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -271,7 +276,6 @@
     const audioCache = {};
     let isAnswering = false; 
     
-    // グラフのインスタンスを保持する変数
     let countChartInstance = null;
     let accuracyChartInstance = null;
 
@@ -323,6 +327,16 @@
         });
     }
 
+    // 【修正1】ログアウト処理の関数を追加
+    function logoutStudent() {
+        if (confirm("ログアウトして ログインがめんに もどる？")) {
+            localStorage.removeItem('seguchi_authenticated');
+            document.getElementById('auth-student-id').value = "";
+            document.getElementById('auth-password').value = "";
+            showScreen('screen-auth');
+        }
+    }
+
     function preloadAudios() {
         Object.keys(COLOR_DATA).forEach(key => {
             const audio = new Audio(COLOR_DATA[key].file);
@@ -340,6 +354,11 @@
         stopAllAudio(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
+        
+        // 記録画面を開いた時は一番上までスクロールさせる
+        if(screenId === 'screen-record' || screenId === 'screen-settings') {
+            document.querySelector('.container').scrollTop = 0;
+        }
     }
 
     function loadLocalStorageData() {
@@ -402,400 +421,40 @@
             for(let i = 0; i < weight; i++) { weightedPool.push(key); }
         });
         return weightedPool[Math.floor(Math.random() * weightedPool.length)];
-    }
+システム改善に向けたアップデートですね。指導者側・学習者側双方の目線に立った素晴らしい着眼点です。ご提示いただいた3つの課題について、具体的な改善策をご提案します。
 
-    function confirmGoHome() {
-        stopTimer();
-        if (confirm("れんしゅうを やめて ホームへ もどる？")) { showScreen('screen-home'); } 
-        else { startTimer(); }
-    }
+### 1. ホーム画面へのログアウトボタン追加
 
-    function renderFlagButtons() {
-        const container = document.getElementById('flag-container'); container.innerHTML = '';
-        appSettings.enabledColors.forEach(key => {
-            const data = COLOR_DATA[key];
-            const btn = document.createElement('button'); btn.className = 'btn-flag'; btn.style.backgroundColor = data.color;
-            const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
-            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
-            btn.onclick = () => handleAnswer(key); container.appendChild(btn);
-        });
-    }
+ユーザーが迷わず安全に利用終了できるよう、導線を明確にすることが重要です。
 
-    function startTimer() {
-        stopTimer();
-        timeLeft = 10; 
-        
-        document.getElementById('timer-sec').innerText = timeLeft;
-        timerId = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer-sec').innerText = timeLeft;
-            if (timeLeft <= 0) { stopTimer(); handleAnswer(null); }
-        }, 1000);
-    }
+*   **配置場所の推奨:** 誤タップを防ぐため、画面の「右上（ヘッダー部分）」、または「設定メニュー（歯車アイコンなど）の中」に配置するのが一般的です。
+*   **デザイン:** 目立ちすぎず、かつ見落とされないように、シンプルなテキスト（「ログアウト」）や、ドアから出るアイコンを使用すると直感的です。
 
-    function stopTimer() { if (timerId) clearInterval(timerId); }
+### 2. 【きろく】画面の表示切れ改善
 
-    function nextQuestion() {
-        isAnswering = false; 
-        if (gameState.currentQuestionIndex >= appSettings.questionCount) { endPractice(); return; }
-        gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
-        document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
-        showScreen('screen-practice');
-        setTimeout(() => { playCurrentChord(); startTimer(); }, 300);
-    }
+「スクリーンショット 2026-08-13 22.41.16.png」を拝見しました。画面上部の要素（おそらく一番上の記録項目）が画面外、または見えないヘッダーの裏に隠れてしまっている状態ですね。
 
-    function goToNextQuestion() { stopAllAudio(); gameState.currentQuestionIndex++; nextQuestion(); }
+*   **CSSの余白調整（Web・PWAの場合）:**
+    コンテンツ全体を囲むコンテナ（外枠）に対して、上部の余白（`padding-top` または `margin-top`）を追加してください。
+    もし上部に固定ヘッダー（スクロールしてもついてくるメニュー）がある場合は、そのヘッダーの高さ分だけ余白を空ける必要があります。
+*   **セーフエリアの考慮（スマホ対応の場合）:**
+    iPhoneなどのノッチ（カメラ部分の切り欠き）に被っている可能性がある場合は、CSSに `padding-top: env(safe-area-inset-top);` を設定することで、端末ごとの安全な領域に合わせて自動調整されます。
 
-    function handleAnswer(selectedKey) {
-        if (isAnswering) return; 
-        isAnswering = true; stopTimer(); 
-        
-        let targetKey = gameState.currentColorKey;
-        let allStats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
-        if (!allStats[targetKey]) allStats[targetKey] = { total: 0, correct: 0 };
-        if (!gameState.colorStats[targetKey]) gameState.colorStats[targetKey] = { total: 0, correct: 0 };
-        
-        allStats[targetKey].total++; gameState.colorStats[targetKey].total++;
-        
-        const isCorrect = (selectedKey === targetKey);
-        const correctData = COLOR_DATA[targetKey];
-        const resTitle = document.getElementById('judge-result');
-        const resComment = document.getElementById('judge-comment');
-        const resInfo = document.getElementById('judge-correct-info');
-        const btnReplay = document.getElementById('btn-replay-correct');
-        const btnNext = document.getElementById('btn-next');
-        
-        if (isCorrect) {
-            allStats[targetKey].correct++; gameState.colorStats[targetKey].correct++;
-            gameState.correctCount++; gameState.currentStreak++;
-            if (gameState.currentStreak > gameState.bestStreak) { gameState.bestStreak = gameState.currentStreak; }
-            
-            resTitle.innerText = "⭕ せいかい！"; resTitle.style.color = "#4caf50";
-            let praise = "🌟 いいね！";
-            if (gameState.currentStreak >= 15) praise = "👑 すごい！ めざせパーフェクト！";
-            else if (gameState.currentStreak >= 10) praise = `🏆 ${gameState.currentStreak}れんぞく！ すごすぎる！`;
-            else if (gameState.currentStreak >= 5) praise = `🔥🔥 ${gameState.currentStreak}れんぞく！ すごい！`;
-            else if (gameState.currentStreak >= 3) praise = `🔥 ${gameState.currentStreak}れんぞく！`;
-            
-            resComment.innerText = praise; resInfo.style.display = "none"; btnReplay.style.display = "none"; btnNext.style.display = "block"; 
-            showScreen('screen-judge');
-            setTimeout(() => { if (document.getElementById('screen-judge').classList.contains('active')) { goToNextQuestion(); } }, 800);
-            
-        } else {
-            gameState.currentStreak = 0;
-            resTitle.innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ おしい！";
-            resTitle.style.color = "#f44336"; resComment.innerText = "💦"; 
-            resInfo.style.display = "block";
-            resInfo.innerHTML = `せいかいは<br><span style="color:${correctData.color}; font-size:24px; font-weight:bold;"> ${correctData.emoji} ${correctData.name} </span><br>だったよ！`;
-            btnReplay.style.display = "inline-block"; btnNext.style.display = "block";
-            showScreen('screen-judge');
-            setTimeout(() => { if (document.getElementById('screen-judge').classList.contains('active')) { playChord(targetKey); } }, 300);
-        }
-        localStorage.setItem('seguchi_color_stats', JSON.stringify(allStats));
-    }
+### 3. スプレッドシート（詳細データ）の視認性向上
 
-    function endPractice() {
-        const total = appSettings.questionCount;
-        const correct = gameState.correctCount;
-        const percent = Math.round((correct / total) * 100);
-        
-        let prevPercent = localStorage.getItem('rec_last_percent');
-        localStorage.setItem('rec_last_percent', percent);
-        
-        let diffMsg = "🌱 はじめてのきろく！";
-        if (prevPercent !== null) {
-            let diff = percent - parseInt(prevPercent);
-            if (diff > 0) diffMsg = `📈 前回より +${diff}%`;
-            else if (diff < 0) diffMsg = `📉 前回より ${diff}%`;
-            else diffMsg = `➖ 前回とおなじ！`;
-        }
-        
-        let recBestStreak = parseInt(localStorage.getItem('rec_best_streak') || "0");
-        if (gameState.bestStreak > recBestStreak) {
-            recBestStreak = gameState.bestStreak;
-            localStorage.setItem('rec_best_streak', recBestStreak);
-        }
-        
-        document.getElementById('result-score').innerText = `${total}もんちゅう ${correct}もんせいかい！`;
-        document.getElementById('result-percent').innerText = `${percent}%`;
-        
-        let stars = "⭐";
-        if (percent === 100) stars = "⭐⭐⭐⭐⭐";
-        else if (percent >= 80) stars = "⭐⭐⭐⭐";
-        else if (percent >= 50) stars = "⭐⭐⭐";
-        else if (percent >= 20) stars = "⭐⭐";
-        document.getElementById('result-stars').innerText = stars;
+「スクリーンショット 2026-08-13 22.37.12.png」を確認しました。データがJSON形式（プログラムが処理しやすいデータ構造）のまま書き出されているため、講師がパッと見て状況を把握するには不向きな状態です。
 
-        document.getElementById('result-best-streak').innerText = `🔥 さいこうれんぞく：${gameState.bestStreak}もん`;
-        document.getElementById('result-diff').innerText = diffMsg;
+これを一瞥で理解できるようにするには、データをスプレッドシートに書き込む段階、または書き込んだ後のシート上で工夫が必要です。
 
-        const counts = saveRecordToLocalStorage(percent);
-        
-        let colorStatsForGas = {};
-        for (let key in gameState.colorStats) {
-            let st = gameState.colorStats[key];
-            colorStatsForGas[key] = {
-                total: st.total,
-                correct: st.correct,
-                percent: st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0
-            };
-        }
-        
-        sendDataToTeacherGAS(
-            appSettings.studentId, appSettings.studentName, percent, 
-            `${correct}/${total}`, counts.total, counts.today, gameState.mode, gameState.bestStreak, colorStatsForGas
-        );
+*   **改善案A：システム側（出力元）で整形して書き込む**
+    アプリ側やGoogle Apps Script (GAS) などの連携プログラムを修正し、JSONをそのまま出力するのではなく、必要な情報だけを抽出して書き込むようにします。
+    *   例：「詳細データ」列の代わりに、**「最も苦手な音（正答率）」**という列を作り、「あか (0%)」のようにテキストとして出力させます。
+*   **改善案B：スプレッドシートの関数を活用して別列に抽出する**
+    出力元のシステムをいじるのが難しい場合は、スプレッドシート側に新しい列を作り、関数を使って見やすくします。
+    *   特定の文字列を抽出する関数（`REGEXEXTRACT`など）を利用して、JSONの文字列から正答率が一番低い項目を自動判定する仕組みを作ることが可能です。
+*   **条件付き書式の活用:**
+    正答率を独立した列（「あか正答率」「あお正答率」など）に分割できれば、50%以下ならセルを赤くするなどの「条件付き書式」を設定でき、講師が直感的に苦手箇所を把握できるようになります。
 
-        showScreen('screen-result');
-    }
+---
 
-    function saveRecordToLocalStorage(currentPercent) {
-        let recCount = parseInt(localStorage.getItem('rec_count') || "0") + 1;
-        let recBest = parseInt(localStorage.getItem('rec_best') || "0");
-        if (currentPercent > recBest) recBest = currentPercent;
-        
-        const todayStr = new Date().toLocaleDateString('ja-JP');
-        const recLastDate = localStorage.getItem('rec_last_date') || "";
-        
-        let recStreak = parseInt(localStorage.getItem('rec_streak') || "0");
-        let recTodayCount = parseInt(localStorage.getItem('rec_today_count') || "0");
-
-        if (recLastDate !== todayStr) {
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            if (recLastDate === yesterday.toLocaleDateString('ja-JP')) { recStreak++; } 
-            else { recStreak = 1; }
-            recTodayCount = 1; 
-        } else {
-            recTodayCount++;
-        }
-
-        let dailyHistory = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
-        if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== todayStr) {
-            dailyHistory.push({ date: todayStr, count: 1, bestPercent: currentPercent });
-        } else {
-            dailyHistory[dailyHistory.length - 1].count = recTodayCount;
-            // その日の最高正答率を更新
-            if (dailyHistory[dailyHistory.length - 1].bestPercent === undefined || currentPercent > dailyHistory[dailyHistory.length - 1].bestPercent) {
-                dailyHistory[dailyHistory.length - 1].bestPercent = currentPercent;
-            }
-        }
-        if (dailyHistory.length > 14) dailyHistory.shift(); 
-
-        localStorage.setItem('rec_count', recCount);
-        localStorage.setItem('rec_today_count', recTodayCount);
-        localStorage.setItem('rec_best', recBest);
-        localStorage.setItem('rec_streak', recStreak);
-        localStorage.setItem('rec_last_date', todayStr);
-        localStorage.setItem('rec_daily_history', JSON.stringify(dailyHistory));
-        
-        return { total: recCount, today: recTodayCount };
-    }
-
-    function sendDataToTeacherGAS(studentId, studentName, percent, scoreStr, totalCount, todayCount, mode, bestStreak, colorStats) {
-        if (!GAS_ENDPOINT_URL || GAS_ENDPOINT_URL.includes("ここに")) return;
-        
-        const payload = {
-            action: "saveRecord",
-            studentId: studentId,
-            studentName: studentName,
-            percent: percent,
-            score: scoreStr,
-            totalCount: totalCount,
-            todayCount: todayCount,
-            timestamp: new Date().toLocaleString("ja-JP"),
-            mode: mode || "normal",
-            bestStreak: bestStreak || 0,
-            colorStats: JSON.stringify(colorStats || {})
-        };
-
-        fetch(GAS_ENDPOINT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(payload)
-        }).catch(err => console.log("送信エラー:", err));
-    }
-
-    function updateRecordScreen() {
-        document.getElementById('rec-name').innerText = appSettings.studentName || "-";
-        document.getElementById('rec-count').innerText = localStorage.getItem('rec_count') || "0";
-        document.getElementById('rec-today-count').innerText = localStorage.getItem('rec_today_count') || "0";
-        document.getElementById('rec-best').innerText = localStorage.getItem('rec_best') || "0";
-        document.getElementById('rec-streak').innerText = localStorage.getItem('rec_streak') || "0";
-        document.getElementById('rec-best-streak').innerText = localStorage.getItem('rec_best_streak') || "0";
-        renderColorStats();
-        renderRecordCharts();
-    }
-    
-    function renderColorStats() {
-        const stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
-        const container = document.getElementById('rec-color-stats');
-        const weakContainer = document.getElementById('rec-weak-colors');
-        container.innerHTML = ''; weakContainer.innerHTML = '';
-        
-        let validStats = [];
-        appSettings.enabledColors.forEach(key => {
-            const stat = stats[key]; const data = COLOR_DATA[key];
-            if (stat && stat.total > 0) {
-                const pct = Math.round((stat.correct / stat.total) * 100);
-                validStats.push({ key: key, emoji: data.emoji, name: data.name, pct: pct, total: stat.total });
-                
-                let evalMark = "";
-                if (pct >= 80) evalMark = "✨ 得意"; else if (pct >= 60) evalMark = "👍 もう少し"; else evalMark = "⚠️ 苦手";
-                
-                let item = document.createElement('div');
-                item.style.marginBottom = "8px"; item.style.borderBottom = "1px dashed #eee"; item.style.paddingBottom = "4px";
-                item.innerHTML = `${data.emoji} ${data.name} <span style="font-weight:bold;">${pct}%</span> <span style="font-size: 13px; color: #666;">(${evalMark})</span>`;
-                container.appendChild(item);
-            }
-        });
-        
-        if (validStats.length === 0) {
-            container.innerHTML = '<div style="color: #666;">まだデータがありません</div>';
-            weakContainer.innerHTML = '<div style="color: #666;">-</div>'; return;
-        }
-        
-        validStats.sort((a, b) => a.pct - b.pct);
-        let weakList = validStats.filter(s => s.pct < 60);
-        
-        if (weakList.length === 0) {
-            weakContainer.innerHTML = '<div style="color: #4caf50; font-weight: bold;">なし 🎉 ぜんぶとくい！</div>';
-        } else {
-            for (let i = 0; i < weakList.length && i < 3; i++) {
-                let w = weakList[i];
-                let item = document.createElement('div');
-                item.style.color = "#d32f2f"; item.style.fontWeight = "bold"; item.style.marginBottom = "4px";
-                item.innerHTML = `⚠️ ${w.emoji} ${w.name}：${w.pct}%`;
-                weakContainer.appendChild(item);
-            }
-        }
-    }
-
-    function renderRecordCharts() {
-        const history = JSON.parse(localStorage.getItem('rec_daily_history') || "[]");
-
-        if (countChartInstance) countChartInstance.destroy();
-        if (accuracyChartInstance) accuracyChartInstance.destroy();
-
-        // 日付を「8/13」のように短くフォーマットする
-        const labels = history.map(item => {
-            let parts = item.date.split('/');
-            return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
-        });
-
-        // ==========================================
-        // 1. 日々の最高正答率グラフ（折れ線グラフ）
-        // ==========================================
-        const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
-        const dataAcc = history.map(item => item.bestPercent || 0);
-
-        accuracyChartInstance = new Chart(ctxAcc, {
-            type: 'line',
-            data: {
-                labels: labels.length ? labels : ['データなし'],
-                datasets: [{
-                    label: '最高正答率 (%)',
-                    data: dataAcc.length ? dataAcc : [0],
-                    backgroundColor: 'rgba(255, 152, 0, 0.2)', // 薄いオレンジ
-                    borderColor: '#ff9800',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#ff9800',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { 
-                        min: 0, 
-                        max: 100,
-                        ticks: { stepSize: 20 }
-                    } 
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // ==========================================
-        // 2. 日々の練習回数グラフ（棒グラフ）
-        // ==========================================
-        const ctxCount = document.getElementById('countChart').getContext('2d');
-        const dataCount = history.map(item => item.count || 0);
-
-        countChartInstance = new Chart(ctxCount, {
-            type: 'bar', 
-            data: {
-                labels: labels.length ? labels : ['データなし'],
-                datasets: [{
-                    label: '練習回数 (回)',
-                    data: dataCount.length ? dataCount : [0],
-                    backgroundColor: 'rgba(76, 175, 80, 0.7)', // 緑色
-                    borderColor: '#4caf50',
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { 
-                        min: 0, 
-                        ticks: { stepSize: 1 } 
-                    } 
-                },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    function slideIntoSettings() {
-        document.getElementById('pin-field').value = "";
-        showScreen('screen-passcode');
-    }
-
-    function verifyPasscode() {
-        if (document.getElementById('pin-field').value === appSettings.parentPin) {
-            syncSettingsToUI(); showScreen('screen-settings');
-        } else { alert("パスコードが ちがいます"); document.getElementById('pin-field').value = ""; }
-    }
-
-    function renderSettingsColors() {
-        const grid = document.getElementById('settings-colors'); grid.innerHTML = '';
-        Object.keys(COLOR_DATA).forEach(key => {
-            const data = COLOR_DATA[key];
-            const item = document.createElement('div'); item.className = 'checkbox-item';
-            item.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}"><label for="chk-${key}">${data.emoji} ${data.name}</label>`;
-            grid.appendChild(item);
-        });
-    }
-
-    function syncSettingsToUI() {
-        Object.keys(COLOR_DATA).forEach(key => {
-            const chk = document.getElementById(`chk-${key}`);
-            if (chk) chk.checked = appSettings.enabledColors.includes(key);
-        });
-        const radios = document.getElementsByName('setting-count');
-        radios.forEach(r => { if (parseInt(r.value) === appSettings.questionCount) r.checked = true; });
-    }
-
-    function saveSettings() {
-        const checkedColors = [];
-        Object.keys(COLOR_DATA).forEach(key => {
-            const chk = document.getElementById(`chk-${key}`);
-            if (chk && chk.checked) checkedColors.push(key);
-        });
-        if (checkedColors.length === 0) { alert("出題するボタンを 1つ以上選んでください。"); return; }
-        
-        let count = 10;
-        document.getElementsByName('setting-count').forEach(r => { if (r.checked) count = parseInt(r.value); });
-
-        appSettings.enabledColors = checkedColors; appSettings.questionCount = count;
-        localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
-        showScreen('screen-home');
-    }
-</script>
-</body>
-</html>
+実装環境に合わせてより具体的な解決策を絞り込みたいのですが、今回のアプリ（記録画面）とスプレッドシートの連携には、どのようなツールやプラットフォーム（例：Glide、AppSheet、または独自開発のWebアプリ＋GASなど）をご利用でしょうか？
