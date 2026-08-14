@@ -186,6 +186,17 @@
             
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
+
+            <!-- ★グラフ復活エリア -->
+            <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 日々のせいとうりつ (最高%)</div>
+            <div class="chart-container">
+                <canvas id="accuracyChart"></canvas>
+            </div>
+
+            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 日々のれんしゅうかいすう</div>
+            <div class="chart-container">
+                <canvas id="countChart"></canvas>
+            </div>
         </div>
         <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">もどる</button>
     </div>
@@ -221,7 +232,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz-fmYtZTUl_J5TBCwnMtYzlyLgGjT6hr-a8YrLDFIsGPjmiH6p8EWWr9WiEAnETOQc/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzjob3yzXala6opIRsjDRJ6326mqyXZka50UV46BB2EFsLm7BmK9DSt-YdP0IVpqu2Z/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -248,6 +259,10 @@
     const audioCache = {};
     let isAnswering = false; 
 
+    // ★グラフ用の変数を復活
+    let countChartInstance = null;
+    let accuracyChartInstance = null;
+
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
         renderSettingsColors();
@@ -265,7 +280,7 @@
         }
     }
 
-    // ログイン処理（エラーを確実に表示する）
+    // ログイン処理
     function authenticateStudent() {
         const studentId = document.getElementById('auth-student-id').value.trim();
         const password = document.getElementById('auth-password').value.trim();
@@ -297,7 +312,7 @@
                 showScreen('screen-home');
             } else {
                 // 明確なエラーメッセージ
-                alert("【IDかパスワードが違います】\nもう一度確認してください。");
+                alert(res.message || "【IDかパスワードが違います】\nもう一度確認してください。");
             }
         })
         .catch(err => {
@@ -462,23 +477,31 @@
         let totalCount = parseInt(localStorage.getItem('seguchi_total_count') || '0') + 1;
         localStorage.setItem('seguchi_total_count', totalCount);
         
-        const today = new Date().toLocaleDateString();
-        let dailyData = JSON.parse(localStorage.getItem('seguchi_daily_data') || '{}');
-        if (!dailyData[today]) dailyData[today] = { count: 0, bestPercent: 0 };
-        dailyData[today].count++;
-        if (percent > dailyData[today].bestPercent) dailyData[today].bestPercent = percent;
-        localStorage.setItem('seguchi_daily_data', JSON.stringify(dailyData));
+        const today = new Date().toLocaleDateString('ja-JP');
+        
+        // ★グラフ用の日次データを保存（直近14回分を配列で保存）
+        let dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
+        if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== today) {
+            dailyHistory.push({ date: today, count: 1, bestPercent: percent });
+        } else {
+            dailyHistory[dailyHistory.length - 1].count++;
+            if (percent > dailyHistory[dailyHistory.length - 1].bestPercent) {
+                dailyHistory[dailyHistory.length - 1].bestPercent = percent;
+            }
+        }
+        if (dailyHistory.length > 14) dailyHistory.shift(); 
+        localStorage.setItem('seguchi_daily_history', JSON.stringify(dailyHistory));
 
         let overallBest = parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0');
         if (gameState.bestStreak > overallBest) localStorage.setItem('seguchi_overall_best_streak', gameState.bestStreak);
 
-        saveRecordToGAS(percent, `${correct}/${total}`, gameState.bestStreak, totalCount, dailyData[today].count);
+        saveRecordToGAS(percent, `${correct}/${total}`, gameState.bestStreak, totalCount, dailyHistory[dailyHistory.length - 1].count);
         showScreen('screen-result');
     }
 
     function confirmGoHome() { if(confirm("れんしゅうをやめて ホームにもどる？")) showScreen('screen-home'); }
 
-    // GASへの記録送信（日本語化処理を含む）
+    // GASへの記録送信
     function saveRecordToGAS(percent, score, bestStreak, totalCount, todayCount) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let readableStatsText = "";
@@ -523,9 +546,10 @@
         document.getElementById('rec-best-streak').innerText = localStorage.getItem('seguchi_overall_best_streak') || '0';
         document.getElementById('rec-count').innerText = localStorage.getItem('seguchi_total_count') || '0';
 
-        const today = new Date().toLocaleDateString();
-        let dailyData = JSON.parse(localStorage.getItem('seguchi_daily_data') || '{}');
-        document.getElementById('rec-today-count').innerText = dailyData[today] ? dailyData[today].count : '0';
+        const history = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
+        const todayStr = new Date().toLocaleDateString('ja-JP');
+        const todayData = history.find(h => h.date === todayStr);
+        document.getElementById('rec-today-count').innerText = todayData ? todayData.count : '0';
 
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let statsHtml = ""; let weakHtml = ""; let lowestPercent = 100;
@@ -539,6 +563,79 @@
         }
         document.getElementById('rec-color-stats').innerHTML = statsHtml || "まだデータがありません";
         document.getElementById('rec-weak-colors').innerHTML = weakHtml || "まだデータがありません";
+        
+        // ★グラフ描画の呼び出し
+        renderRecordCharts();
+    }
+
+    // ★グラフを描画する関数を復活
+    function renderRecordCharts() {
+        const history = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
+
+        if (countChartInstance) countChartInstance.destroy();
+        if (accuracyChartInstance) accuracyChartInstance.destroy();
+
+        // 日付を「8/14」のように短くフォーマットする
+        const labels = history.map(item => {
+            let parts = item.date.split('/');
+            return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
+        });
+
+        // 1. 日々の最高正答率グラフ（折れ線グラフ）
+        const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
+        const dataAcc = history.map(item => item.bestPercent || 0);
+
+        accuracyChartInstance = new Chart(ctxAcc, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['データなし'],
+                datasets: [{
+                    label: '最高正答率 (%)',
+                    data: dataAcc.length ? dataAcc : [0],
+                    backgroundColor: 'rgba(255, 152, 0, 0.2)', // 薄いオレンジ
+                    borderColor: '#ff9800',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#ff9800',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { min: 0, max: 100, ticks: { stepSize: 20 } } 
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // 2. 日々の練習回数グラフ（棒グラフ）
+        const ctxCount = document.getElementById('countChart').getContext('2d');
+        const dataCount = history.map(item => item.count || 0);
+
+        countChartInstance = new Chart(ctxCount, {
+            type: 'bar', 
+            data: {
+                labels: labels.length ? labels : ['データなし'],
+                datasets: [{
+                    label: '練習回数 (回)',
+                    data: dataCount.length ? dataCount : [0],
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)', // 緑色
+                    borderColor: '#4caf50',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { min: 0, ticks: { stepSize: 1 } } 
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     }
 
     function slideIntoSettings() { document.getElementById('pin-field').value = ""; showScreen('screen-passcode'); }
