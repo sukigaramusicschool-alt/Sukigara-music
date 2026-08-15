@@ -25,6 +25,7 @@
         .btn-main { background-color: #4caf50; color: white; }
         .btn-sub { background-color: #2196f3; color: white; }
         .btn-orange { background-color: #ff9800; color: white; }
+        .btn-purple { background-color: #9c27b0; color: white; } /* シールちょう用ボタン色 */
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
         .btn-danger { background-color: #f44336; color: white; } 
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: #666; box-shadow: none; }
@@ -45,6 +46,14 @@
         .radio-group input { width: 22px; height: 22px; }
         .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
         .chart-container { width: 100%; height: 200px; margin-top: 10px; margin-bottom: 20px; background: #ffffff; border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
+
+        /* シールちょう用 CSS */
+        @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .badge-grid { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .badge-item { background: #fff; border: 2px solid #ddd; border-radius: 12px; padding: 10px 5px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .badge-locked { filter: grayscale(100%); opacity: 0.3; background: #f0f0f0; }
+        .badge-emoji { font-size: 32px; margin-bottom: 5px; }
+        .badge-name { font-size: 11px; font-weight: bold; line-height: 1.2; word-break: keep-all; }
     </style>
 </head>
 <body>
@@ -72,6 +81,7 @@
             <button class="btn btn-main" onclick="startPractice('normal')">▶ れんしゅうする</button>
             <button class="btn btn-danger" onclick="startPractice('weakness')">🔥 もっとれんしゅう</button>
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
+            <button class="btn btn-purple" onclick="showScreen('screen-badges'); updateBadgesScreen();">📔 シールちょう</button>
             <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
             <button class="btn btn-gray" onclick="slideIntoSettings()">⚙ せってい</button>
             <button class="btn btn-outline" onclick="logoutStudent()" style="margin-top: 25px; padding: 12px; font-size: 16px;">🚪 ログアウト</button>
@@ -108,6 +118,12 @@
 
     <!-- 4. 練習終了画面 -->
     <div id="screen-result" class="screen">
+        <!-- ★ シール獲得のポップアップ -->
+        <div id="new-badge-notification" style="width:100%; display:none; background:#fff9c4; padding:15px; border-radius:12px; border:2px solid #ffeb3b; margin-bottom:15px; animation: pop 0.5s ease-out; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-weight:bold; color:#f57f17; margin-bottom:5px;">🎉 新しいシールをゲットしたよ！</div>
+            <div id="new-badge-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
+        </div>
+
         <div class="emoji-large" style="margin-bottom: 10px;">🎉</div>
         <h2>おつかれさま！</h2>
         <div id="result-score" class="info-text" style="font-size: 24px; margin: 10px 0;">10もんちゅう 8もんせいかい！</div>
@@ -116,6 +132,13 @@
         <div id="result-stars" style="font-size: 32px; color: #ffc107; margin-bottom: 10px;">⭐⭐⭐⭐</div>
         <div id="result-best-streak" class="info-text" style="margin-bottom: 20px; color: #e91e63;">🔥 さいこうれんぞく：5もん</div>
         <button class="btn btn-main" onclick="showScreen('screen-home')">ホームへもどる</button>
+    </div>
+
+    <!-- 4.5 シールちょう画面 -->
+    <div id="screen-badges" class="screen" style="justify-content: flex-start; padding-top: 30px;">
+        <h2 style="margin-bottom: 20px;">📔 シールちょう</h2>
+        <div id="badge-container" class="badge-grid"></div>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">もどる</button>
     </div>
 
     <!-- 5. 記録画面 -->
@@ -155,7 +178,6 @@
     <div id="screen-settings" class="screen" style="justify-content: flex-start; padding-top: 30px;">
         <h2 style="margin-bottom: 20px;">⚙ 設定（保護者用）</h2>
         
-        <!-- ★アップグレード案内パネル（無料プランのみ表示） -->
         <div id="premium-promo" style="display:none; background-color: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 14px;">
             <div style="font-weight: bold; color: #e65100; margin-bottom: 5px;">✨プレミアムプランなら全14色の音源が使い放題！お子様の絶対音感をさらに伸ばしませんか？ お申し込みは講師まで！</div>
             <div style="color: #333;">講師のLINEへご連絡ください。</div>
@@ -180,7 +202,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwZbgoVs2FUBB7vB_4tjr1IWY9GRbGBmi7MKrmIOBQv3t10l-esBckxx7CSeYInoG_c/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxZiSWykV9ZYsIugHfdr0j3EHnj-_i2P5cL-zralUVHgu_jcWrsmmS5vHN40uDjqaUI/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -205,8 +227,25 @@
     const PRAISE_7_9 = ["🎉 {n}もん れんぞく！\nあとすこしで ゴールだ！", "🎉 {n}もん れんぞく！\nわくわく ドキドキ！", "🎉 {n}かい できた！\nあともう ちょっと！"];
     const PRAISE_10_PLUS = ["👑 {n}もん れんぞく！\nきみは チャンピオンだ！", "👑 {n}もん れんぞく！\nどっかーん！ ほんとに てんさい！！", "👑 {n}こ ぜんぶ できた！\nだいせいかい！ ぜっこうちょう！"];
 
+    // ★ シールちょうのデータ定義
+    const BADGES_INFO = [
+        { id: 'play_1', emoji: '🔰', name: 'はじめての れんしゅう' },
+        { id: 'play_10', emoji: '🥚', name: 'おんかん たまご' },
+        { id: 'play_30', emoji: '🐥', name: 'おんかん ひよこ' },
+        { id: 'play_100', emoji: '🦅', name: 'おんかん マスター' },
+        { id: 'streak_3d', emoji: '🔥', name: '3にち れんぞく！' },
+        { id: 'daily_5', emoji: '🌟', name: 'きょうの 5かい クリア！' },
+        { id: 'perfect_10', emoji: '👑', name: '10もん パーフェクト！' },
+        { id: 'speed_star', emoji: '🚀', name: 'スピードスター！' }
+    ];
+    // ★ 色マスターシールを自動生成
+    Object.keys(COLOR_DATA).forEach(k => {
+        BADGES_INFO.push({ id: 'master_' + k, emoji: COLOR_DATA[k].emoji, name: COLOR_DATA[k].name + '<br>マスター' });
+    });
+    BADGES_INFO.push({ id: 'master_all', emoji: '🌈', name: 'にじいろ<br>マスター' });
+
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
-    let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0 };
+    let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0, startTime: 0 };
     
     let timerId = null;
     let timeLeft = 10;
@@ -267,6 +306,9 @@
                         if (parsedData.session_history) localStorage.setItem('seguchi_session_history', JSON.stringify(parsedData.session_history));
                         if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
                         if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
+                        // ★ シールデータの復元
+                        if (parsedData.earned_badges) localStorage.setItem('seguchi_earned_badges', JSON.stringify(parsedData.earned_badges));
+                        if (parsedData.login_streak) localStorage.setItem('seguchi_login_streak', JSON.stringify(parsedData.login_streak));
                     } catch(e) { console.log("セーブデータの復元に失敗しました", e); }
                 }
 
@@ -305,7 +347,7 @@
         isAnswering = false;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-        if(screenId === 'screen-record' || screenId === 'screen-settings') document.querySelector('.container').scrollTop = 0;
+        if(screenId === 'screen-record' || screenId === 'screen-settings' || screenId === 'screen-badges') document.querySelector('.container').scrollTop = 0;
     }
 
     function loadLocalStorageData() {
@@ -321,7 +363,6 @@
     }
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
-    // ★強制プランチェック（抜け道防止）
     function applyPlanLimits() {
         if (appSettings.plan === '無料') {
             appSettings.enabledColors = appSettings.enabledColors.filter(c => c === 'aka' || c === 'kiiro');
@@ -331,7 +372,7 @@
     }
 
     function startTraining() {
-        applyPlanLimits(); // ★開始直前に強制チェック
+        applyPlanLimits(); 
         if (appSettings.enabledColors.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         const container = document.getElementById('training-container'); container.innerHTML = '';
         appSettings.enabledColors.forEach(key => {
@@ -345,9 +386,11 @@
     }
 
     function startPractice(mode = 'normal') {
-        applyPlanLimits(); // ★開始直前に強制チェック
+        applyPlanLimits(); 
         gameState.mode = mode; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
+        gameState.startTime = Date.now(); // ★ スピードスター計測開始
+        
         const pool = appSettings.enabledColors;
         if (pool.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         
@@ -441,6 +484,45 @@
 
     function goToNextQuestion() { gameState.currentQuestionIndex++; nextQuestion(); }
 
+    // ★ シール獲得のチェックロジック
+    function checkAndUnlockBadges(percent, totalPlays, dailyPlays, streakDays) {
+        let earned = JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]');
+        let newlyEarned = [];
+        
+        function unlock(id) {
+            if (!earned.includes(id)) {
+                earned.push(id);
+                let b = BADGES_INFO.find(x => x.id === id);
+                if (b) newlyEarned.push(b);
+            }
+        }
+
+        if (totalPlays >= 1) unlock('play_1');
+        if (totalPlays >= 10) unlock('play_10');
+        if (totalPlays >= 30) unlock('play_30');
+        if (totalPlays >= 100) unlock('play_100');
+        if (streakDays >= 3) unlock('streak_3d');
+        if (dailyPlays >= 5) unlock('daily_5');
+        
+        if (appSettings.questionCount >= 10 && percent === 100) unlock('perfect_10');
+        
+        let timeTakenSec = (Date.now() - gameState.startTime) / 1000;
+        // 1問あたり平均3.5秒以内(10問なら35秒)で全問正解ならスピードスター
+        if (percent === 100 && timeTakenSec <= (appSettings.questionCount * 3.5)) unlock('speed_star'); 
+
+        let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
+        let masteredCount = 0;
+        Object.keys(COLOR_DATA).forEach(k => {
+            if (stats[k] && stats[k].correct >= 20) unlock('master_' + k);
+            if (stats[k] && stats[k].total > 0) masteredCount++;
+        });
+
+        if (masteredCount >= 14) unlock('master_all');
+
+        if (newlyEarned.length > 0) localStorage.setItem('seguchi_earned_badges', JSON.stringify(earned));
+        return newlyEarned;
+    }
+
     function showResult() {
         const total = appSettings.questionCount; const correct = gameState.correctCount;
         const percent = Math.round((correct / total) * 100);
@@ -472,11 +554,54 @@
         if (dailyHistory.length > 14) dailyHistory.shift(); 
         localStorage.setItem('seguchi_daily_history', JSON.stringify(dailyHistory));
 
+        // ★ 連続ログイン(日数)の計算
+        let streakData = JSON.parse(localStorage.getItem('seguchi_login_streak') || '{"lastDate":"","count":0}');
+        if (streakData.lastDate !== todayStr) {
+            let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            if (streakData.lastDate === yesterday.toLocaleDateString('ja-JP')) {
+                streakData.count++;
+            } else {
+                streakData.count = 1;
+            }
+            streakData.lastDate = todayStr;
+            localStorage.setItem('seguchi_login_streak', JSON.stringify(streakData));
+        }
+
         let overallBest = parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0');
         if (gameState.bestStreak > overallBest) localStorage.setItem('seguchi_overall_best_streak', gameState.bestStreak);
 
+        // ★ シールチェックと獲得ポップアップ表示
+        let newBadges = checkAndUnlockBadges(percent, totalCount, dailyHistory[dailyHistory.length - 1].count, streakData.count);
+        const notif = document.getElementById('new-badge-notification');
+        const notifList = document.getElementById('new-badge-list');
+        if (newBadges.length > 0) {
+            notifList.innerHTML = newBadges.map(b => `<div style="font-size:16px;">${b.emoji} ${b.name.replace('<br>', ' ')}</div>`).join('');
+            notif.style.display = 'block';
+        } else {
+            notif.style.display = 'none';
+        }
+
         saveRecordToGAS(percent, `${correct}/${total}`, gameState.bestStreak, totalCount, dailyHistory[dailyHistory.length - 1].count);
         showScreen('screen-result');
+    }
+
+    // ★ シールちょう画面の描画
+    function updateBadgesScreen() {
+        const container = document.getElementById('badge-container');
+        container.innerHTML = '';
+        let earned = JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]');
+        
+        BADGES_INFO.forEach(b => {
+            const isLocked = !earned.includes(b.id);
+            const div = document.createElement('div');
+            div.className = 'badge-item ' + (isLocked ? 'badge-locked' : '');
+            
+            div.innerHTML = `
+                <div class="badge-emoji">${isLocked ? '❓' : b.emoji}</div>
+                <div class="badge-name">${isLocked ? '？？？' : b.name}</div>
+            `;
+            container.appendChild(div);
+        });
     }
 
     function confirmGoHome() { 
@@ -504,7 +629,10 @@
             daily_history: JSON.parse(localStorage.getItem('seguchi_daily_history') || '[]'),
             session_history: JSON.parse(localStorage.getItem('seguchi_session_history') || '[]'),
             total_count: parseInt(localStorage.getItem('seguchi_total_count') || '0'),
-            overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0')
+            overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0'),
+            // ★ GASにもシールとログイン日数を保存
+            earned_badges: JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]'),
+            login_streak: JSON.parse(localStorage.getItem('seguchi_login_streak') || '{}')
         };
 
         const recordData = {
@@ -517,14 +645,10 @@
         fetch(GAS_ENDPOINT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(recordData) })
         .then(res => res.json())
         .then(res => {
-            // ★記録エラー時のアラート追加
-            if(!res.success) {
-                alert("⚠️ きろくの保存に失敗しました: " + res.message);
-            }
+            if(!res.success) { alert("⚠️ きろくの保存に失敗しました: " + res.message); }
         })
         .catch(err => {
             console.log("記録保存エラー", err);
-            // ★通信エラー時のアラート追加
             alert("⚠️ 通信エラー：きろくが保存できませんでした。電波の良いところで再度お試しください。");
         });
     }
@@ -637,7 +761,6 @@
 
     function verifyPasscode() {
         const pin = document.getElementById('pin-field').value;
-        // ★修正1: 9999のマスターPINを削除、保護者パスコードのみ許可
         if (pin === appSettings.parentPin) { renderSettingsColors(); showScreen('screen-settings'); } 
         else { alert("パスコードがちがいます"); }
     }
@@ -646,7 +769,6 @@
         const container = document.getElementById('settings-colors'); container.innerHTML = '';
         const isFreePlan = (appSettings.plan === '無料');
         
-        // ★修正2: 無料プラン時のプレミアム案内パネルの表示切り替え
         document.getElementById('premium-promo').style.display = isFreePlan ? "block" : "none";
         
         Object.keys(COLOR_DATA).forEach(key => {
