@@ -4,85 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ぜったいおんかんトレーニング</title>
-    <!-- グラフ描画ライブラリ Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-color: #e6f7ff;
-            --text-color: #333333;
-        }
+        :root { --bg-color: #e6f7ff; --text-color: #333333; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex; justify-content: center; align-items: center; min-height: 100vh;
-        }
-        .container {
-            width: 100%; max-width: 640px; height: 100vh; max-height: 900px;
-            background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            overflow-y: auto; position: relative; display: flex; flex-direction: column; padding: 20px;
-        }
+        body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 640px; height: 100vh; max-height: 900px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; position: relative; display: flex; flex-direction: column; padding: 20px; }
         .screen { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; }
         .screen.active { display: flex; }
-
         .logo-area { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .logo-img-large { width: 85%; max-width: 300px; height: auto; object-fit: contain; }
         .logo-img-small { width: 80%; max-width: 250px; height: auto; object-fit: contain; margin-bottom: 15px; margin-top: 15px; }
-
-        h1 { font-size: 20px; margin: 5px 0 20px 0; color: #555; }
         h2 { font-size: 20px; margin: 5px 0; }
         .emoji-large { font-size: 64px; margin-bottom: 20px; }
         .info-text { font-size: 18px; margin: 10px 0; font-weight: bold; }
         .sub-text { font-size: 14px; color: #666; margin-bottom: 20px; }
-        
         .judge-comment-text { font-size: 32px; font-weight: bold; margin-bottom: 20px; }
-
-        .btn {
-            width: 100%; padding: 18px; font-size: 20px; font-weight: bold;
-            border: none; border-radius: 12px; margin: 8px 0; cursor: pointer;
-            transition: transform 0.1s, opacity 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        .btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; margin: 8px 0; cursor: pointer; transition: transform 0.1s, opacity 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn:active { transform: scale(0.98); opacity: 0.9; }
         .btn-main { background-color: #4caf50; color: white; }
         .btn-sub { background-color: #2196f3; color: white; }
         .btn-orange { background-color: #ff9800; color: white; }
-        .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
         .btn-danger { background-color: #f44336; color: white; } 
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: #666; box-shadow: none; }
-
-        .btn-home-mini {
-            position: absolute; top: 15px; right: 15px; width: 40px; height: 40px;
-            border-radius: 50%; background: #eee; border: none; font-size: 18px;
-            cursor: pointer; display: flex; justify-content: center; align-items: center; color: #666;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10;
-        }
-
-        .timer-box {
-            font-size: 22px; font-weight: bold; color: #ff5722;
-            background: #fff3e0; padding: 6px 16px; border-radius: 20px;
-            margin: 10px 0; display: inline-block; border: 2px solid #ffb74d;
-        }
-
-        .flag-list { 
-            width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); 
-            gap: 12px; margin-top: 15px; padding-bottom: 20px;
-        }
-        .btn-flag {
-            width: 100%; aspect-ratio: 1 / 1; padding: 5px; 
-            font-size: 15px; font-weight: bold; color: white;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.6); 
-            border: 4px solid rgba(255,255,255,0.4); border-radius: 16px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer;
-        }
+        .btn-home-mini { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; border-radius: 50%; background: #eee; border: none; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #666; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
+        .timer-box { font-size: 22px; font-weight: bold; color: #ff5722; background: #fff3e0; padding: 6px 16px; border-radius: 20px; margin: 10px 0; display: inline-block; border: 2px solid #ffb74d; }
+        .flag-list { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 15px; padding-bottom: 20px; }
+        .btn-flag { width: 100%; aspect-ratio: 1 / 1; padding: 5px; font-size: 15px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); border: 4px solid rgba(255,255,255,0.4); border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; }
         .btn-flag:active { transform: scale(0.92); opacity: 0.9; }
         .btn-flag .emoji { font-size: 30px; line-height: 1; text-shadow: none; margin-bottom: 2px; }
-
         .judge-display { font-size: 44px; font-weight: bold; margin: 20px 0; }
-
         .form-group { width: 100%; text-align: left; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; }
         .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
@@ -92,11 +44,7 @@
         .radio-group label { display: flex; align-items: center; gap: 5px; font-size: 18px; }
         .radio-group input { width: 22px; height: 22px; }
         .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
-
-        .chart-container {
-            width: 100%; height: 200px; margin-top: 10px; margin-bottom: 20px; background: #ffffff;
-            border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
-        }
+        .chart-container { width: 100%; height: 200px; margin-top: 10px; margin-bottom: 20px; background: #ffffff; border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -105,9 +53,7 @@
 
     <!-- 0. 生徒個別ID・パスワード認証画面 -->
     <div id="screen-auth" class="screen active">
-        <div class="logo-area">
-            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'">
-        </div>
+        <div class="logo-area"><img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'"></div>
         <h2>🔑 ログイン</h2>
         <p class="sub-text">せいとID と パスワードを 入れてね</p>
         <input type="text" id="auth-student-id" class="input-text" placeholder="せいとID (例: 001)" inputmode="numeric">
@@ -117,10 +63,13 @@
 
     <!-- 1. ホーム画面 -->
     <div id="screen-home" class="screen">
-        <div class="logo-area">
-            <img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'">
-        </div>
+        <div class="logo-area"><img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'"></div>
+        
+        <!-- 現在のプラン表示用バッジ -->
+        <div id="plan-badge" style="display:inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 5px;"></div>
+        
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
+        
         <div style="width: 100%;">
             <button class="btn btn-main" onclick="startPractice('normal')">▶ れんしゅうする</button>
             <button class="btn btn-danger" onclick="startPractice('weakness')">🔥 もっとれんしゅう</button>
@@ -172,7 +121,7 @@
         <button class="btn btn-main" onclick="showScreen('screen-home')">ホームへもどる</button>
     </div>
 
-    <!-- 5. 記録画面（見切れ防止のため padding-top を設定） -->
+    <!-- 5. 記録画面 -->
     <div id="screen-record" class="screen" style="justify-content: flex-start; padding-top: 30px;">
         <h2 style="margin-bottom: 20px;">📈 きろく</h2>
         <div class="form-group" style="margin-top:0; font-size: 16px; line-height: 1.8; padding: 12px; width: 100%;">
@@ -189,14 +138,10 @@
 
             <!-- ★グラフ復活エリア -->
             <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 日々のせいとうりつ (最高%)</div>
-            <div class="chart-container">
-                <canvas id="accuracyChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="accuracyChart"></canvas></div>
 
             <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 日々のれんしゅうかいすう</div>
-            <div class="chart-container">
-                <canvas id="countChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="countChart"></canvas></div>
         </div>
         <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">もどる</button>
     </div>
@@ -210,7 +155,7 @@
         <button class="btn btn-back" onclick="showScreen('screen-home')">キャンセル</button>
     </div>
 
-    <!-- 6. 設定画面（見切れ防止のため padding-top を設定） -->
+    <!-- 6. 設定画面 -->
     <div id="screen-settings" class="screen" style="justify-content: flex-start; padding-top: 30px;">
         <h2 style="margin-bottom: 20px;">⚙ 設定（保護者用）</h2>
         <div class="form-group" style="width: 100%;">
@@ -232,7 +177,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzjob3yzXala6opIRsjDRJ6326mqyXZka50UV46BB2EFsLm7BmK9DSt-YdP0IVpqu2Z/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyJ6n9Rs_yr_Hkzk_1DLGlUB_CR-x4mGdUwKYK_4xcYBoPhhBy7J6H4ynVjAL72214G/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -251,7 +196,7 @@
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
-    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "" };
+    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
     let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0 };
     
     let timerId = null;
@@ -259,13 +204,12 @@
     const audioCache = {};
     let isAnswering = false; 
 
-    // ★グラフ用の変数を復活
+    // グラフ用の変数
     let countChartInstance = null;
     let accuracyChartInstance = null;
 
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
-        renderSettingsColors();
         preloadAudios();
         checkAuthStatus();
     });
@@ -273,26 +217,37 @@
     function checkAuthStatus() {
         const isAuth = localStorage.getItem('seguchi_authenticated');
         if (isAuth === 'true' && appSettings.studentName) {
-            document.getElementById('user-display-name').innerText = `👤 ${appSettings.studentName} さん`;
+            updateHomeDisplay();
             showScreen('screen-home');
         } else {
             showScreen('screen-auth');
         }
     }
 
-    // ログイン処理
+    function updateHomeDisplay() {
+        document.getElementById('user-display-name').innerText = `👤 ${appSettings.studentName} さん`;
+        
+        const badge = document.getElementById('plan-badge');
+        if (appSettings.plan === 'プレミアム') {
+            badge.innerText = "✨ プレミアムプラン";
+            badge.style.backgroundColor = "#ffc107";
+            badge.style.color = "#333";
+        } else {
+            badge.innerText = "🌱 無料プラン";
+            badge.style.backgroundColor = "#e0e0e0";
+            badge.style.color = "#666";
+        }
+    }
+
+    // ログイン＆クラウド同期処理
     function authenticateStudent() {
         const studentId = document.getElementById('auth-student-id').value.trim();
         const password = document.getElementById('auth-password').value.trim();
         const loginBtn = document.getElementById('login-btn');
         
-        if (!studentId || !password) { 
-            alert("せいとIDとパスワードを 入れてね"); 
-            return; 
-        }
+        if (!studentId || !password) { alert("せいとIDとパスワードを 入れてね"); return; }
 
-        loginBtn.innerText = "つうしん中...";
-        loginBtn.disabled = true;
+        loginBtn.innerText = "つうしん中..."; loginBtn.disabled = true;
 
         fetch(GAS_ENDPOINT_URL, {
             method: "POST",
@@ -301,23 +256,43 @@
         })
         .then(res => res.json())
         .then(res => {
-            loginBtn.innerText = "ログイン";
-            loginBtn.disabled = false;
+            loginBtn.innerText = "ログイン"; loginBtn.disabled = false;
+            
             if (res.success) {
                 appSettings.studentId = studentId;
                 appSettings.studentName = res.studentName;
+                appSettings.plan = res.plan; // プランを保存
+                
+                // 【クラウド同期】過去のセーブデータがあれば復元する
+                if (res.saveData) {
+                    try {
+                        const parsedData = JSON.parse(res.saveData);
+                        if (parsedData.color_stats) localStorage.setItem('seguchi_color_stats', JSON.stringify(parsedData.color_stats));
+                        if (parsedData.daily_history) localStorage.setItem('seguchi_daily_history', JSON.stringify(parsedData.daily_history));
+                        if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
+                        if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
+                    } catch(e) {
+                        console.log("セーブデータの復元に失敗しました", e);
+                    }
+                }
+
+                // 無料プランの場合は、強制的に「あか」「きいろ」のみに絞る
+                if (appSettings.plan === '無料') {
+                    appSettings.enabledColors = appSettings.enabledColors.filter(c => c === 'aka' || c === 'kiiro');
+                    if (appSettings.enabledColors.length === 0) appSettings.enabledColors = ['aka', 'kiiro'];
+                }
+
                 localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
                 localStorage.setItem('seguchi_authenticated', 'true');
-                document.getElementById('user-display-name').innerText = `👤 ${res.studentName} さん`;
+                
+                updateHomeDisplay();
                 showScreen('screen-home');
             } else {
-                // 明確なエラーメッセージ
                 alert(res.message || "【IDかパスワードが違います】\nもう一度確認してください。");
             }
         })
         .catch(err => {
-            loginBtn.innerText = "ログイン";
-            loginBtn.disabled = false;
+            loginBtn.innerText = "ログイン"; loginBtn.disabled = false;
             console.log("通信エラー:", err);
             alert("【通信エラー】\n反応がない場合、以下の原因が考えられます。\n①GASのURLが最新でない\n②GASのアクセス権限が「全員」になっていない");
         });
@@ -351,6 +326,7 @@
     function loadLocalStorageData() {
         const savedSettings = localStorage.getItem('seguchi_settings');
         if (savedSettings) appSettings = JSON.parse(savedSettings);
+        if (!appSettings.plan) appSettings.plan = "無料";
     }
 
     function playChord(colorKey) {
@@ -479,7 +455,6 @@
         
         const today = new Date().toLocaleDateString('ja-JP');
         
-        // ★グラフ用の日次データを保存（直近14回分を配列で保存）
         let dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
         if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== today) {
             dailyHistory.push({ date: today, count: 1, bestPercent: percent });
@@ -501,7 +476,7 @@
 
     function confirmGoHome() { if(confirm("れんしゅうをやめて ホームにもどる？")) showScreen('screen-home'); }
 
-    // GASへの記録送信
+    // GASへの記録＆セーブデータ送信
     function saveRecordToGAS(percent, score, bestStreak, totalCount, todayCount) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let readableStatsText = "";
@@ -520,6 +495,14 @@
         }
         if (!readableStatsText) readableStatsText = "データなし";
 
+        // クラウド同期用に現在の全セーブデータをパッケージ化
+        const currentSaveData = {
+            color_stats: JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}'),
+            daily_history: JSON.parse(localStorage.getItem('seguchi_daily_history') || '[]'),
+            total_count: parseInt(localStorage.getItem('seguchi_total_count') || '0'),
+            overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0')
+        };
+
         const recordData = {
             action: "saveRecord",
             timestamp: new Date().toLocaleString("ja-JP"),
@@ -531,7 +514,8 @@
             bestStreak: bestStreak,
             totalCount: totalCount,
             todayCount: todayCount,
-            colorStats: `【最も苦手】${weakColorName}\n\n【詳細】\n${readableStatsText}`
+            colorStats: `【最も苦手】${weakColorName}\n\n【詳細】\n${readableStatsText}`,
+            saveData: JSON.stringify(currentSaveData) // 同期用データを追加
         };
 
         fetch(GAS_ENDPOINT_URL, {
@@ -564,27 +548,21 @@
         document.getElementById('rec-color-stats').innerHTML = statsHtml || "まだデータがありません";
         document.getElementById('rec-weak-colors').innerHTML = weakHtml || "まだデータがありません";
         
-        // ★グラフ描画の呼び出し
         renderRecordCharts();
     }
 
-    // ★グラフを描画する関数を復活
     function renderRecordCharts() {
         const history = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
-
         if (countChartInstance) countChartInstance.destroy();
         if (accuracyChartInstance) accuracyChartInstance.destroy();
 
-        // 日付を「8/14」のように短くフォーマットする
         const labels = history.map(item => {
             let parts = item.date.split('/');
             return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
         });
 
-        // 1. 日々の最高正答率グラフ（折れ線グラフ）
         const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
         const dataAcc = history.map(item => item.bestPercent || 0);
-
         accuracyChartInstance = new Chart(ctxAcc, {
             type: 'line',
             data: {
@@ -592,28 +570,15 @@
                 datasets: [{
                     label: '最高正答率 (%)',
                     data: dataAcc.length ? dataAcc : [0],
-                    backgroundColor: 'rgba(255, 152, 0, 0.2)', // 薄いオレンジ
-                    borderColor: '#ff9800',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#ff9800',
-                    fill: true,
-                    tension: 0.3
+                    backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                    borderColor: '#ff9800', borderWidth: 2, pointBackgroundColor: '#ff9800', fill: true, tension: 0.3
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { min: 0, max: 100, ticks: { stepSize: 20 } } 
-                },
-                plugins: { legend: { display: false } }
-            }
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
         });
 
-        // 2. 日々の練習回数グラフ（棒グラフ）
         const ctxCount = document.getElementById('countChart').getContext('2d');
         const dataCount = history.map(item => item.count || 0);
-
         countChartInstance = new Chart(ctxCount, {
             type: 'bar', 
             data: {
@@ -621,20 +586,10 @@
                 datasets: [{
                     label: '練習回数 (回)',
                     data: dataCount.length ? dataCount : [0],
-                    backgroundColor: 'rgba(76, 175, 80, 0.7)', // 緑色
-                    borderColor: '#4caf50',
-                    borderWidth: 1,
-                    borderRadius: 4
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)', borderColor: '#4caf50', borderWidth: 1, borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    y: { min: 0, ticks: { stepSize: 1 } } 
-                },
-                plugins: { legend: { display: false } }
-            }
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
         });
     }
 
@@ -646,12 +601,26 @@
         else { alert("パスコードがちがいます"); }
     }
 
+    // 【プラン判定による設定画面のグレーアウト処理】
     function renderSettingsColors() {
         const container = document.getElementById('settings-colors'); container.innerHTML = '';
+        
+        // 無料プランかどうかを判定
+        const isFreePlan = (appSettings.plan === '無料');
+        
         Object.keys(COLOR_DATA).forEach(key => {
-            const data = COLOR_DATA[key]; const isChecked = appSettings.enabledColors.includes(key) ? "checked" : "";
+            const data = COLOR_DATA[key]; 
+            const isChecked = appSettings.enabledColors.includes(key) ? "checked" : "";
+            
+            // 無料版で「あか・きいろ」以外はチェックできずグレーアウト
+            const isPremiumColor = (key !== 'aka' && key !== 'kiiro');
+            const isDisabled = (isFreePlan && isPremiumColor) ? "disabled" : "";
+            const textStyle = isDisabled ? "color: #bbb;" : "";
+            const premiumBadge = isDisabled ? `<span style="font-size:10px; color:#f44336; border:1px solid #f44336; border-radius:4px; padding:0 2px; margin-left:4px;">プレ</span>` : "";
+
             const div = document.createElement('div'); div.className = 'checkbox-item';
-            div.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}" ${isChecked}> <label for="chk-${key}">${data.emoji} ${data.name}</label>`;
+            div.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}" ${isChecked} ${isDisabled}> 
+                             <label for="chk-${key}" style="${textStyle}">${data.emoji} ${data.name} ${premiumBadge}</label>`;
             container.appendChild(div);
         });
         document.querySelectorAll('input[name="setting-count"]').forEach(radio => { if (parseInt(radio.value) === appSettings.questionCount) radio.checked = true; });
