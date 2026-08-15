@@ -154,6 +154,13 @@
     <!-- 6. 設定画面 -->
     <div id="screen-settings" class="screen" style="justify-content: flex-start; padding-top: 30px;">
         <h2 style="margin-bottom: 20px;">⚙ 設定（保護者用）</h2>
+        
+        <!-- ★アップグレード案内パネル（無料プランのみ表示） -->
+        <div id="premium-promo" style="display:none; background-color: #fff3e0; border: 2px solid #ff9800; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 14px;">
+            <div style="font-weight: bold; color: #e65100; margin-bottom: 5px;">✨プレミアムプランなら全14色の音源が使い放題！お子様の絶対音感をさらに伸ばしませんか？ お申し込みは講師まで！</div>
+            <div style="color: #333;">講師のLINEへご連絡ください。</div>
+        </div>
+        
         <div class="form-group" style="width: 100%;">
             <label>出題するボタン（色・音階）</label>
             <div id="settings-colors" class="checkbox-grid"></div>
@@ -173,7 +180,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwVNbBD0mCnG5AOVFWkQASoaHxRW0daSMisPUpD_ahTi8A16Up-ZNFgDK1QB6t9y9sH/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwZbgoVs2FUBB7vB_4tjr1IWY9GRbGBmi7MKrmIOBQv3t10l-esBckxx7CSeYInoG_c/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -295,7 +302,7 @@
     function showScreen(screenId) {
         stopAllAudio(); 
         clearInterval(timerId); 
-        isAnswering = false; // 画面切り替え時は安全のためいったんロック
+        isAnswering = false;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
         if(screenId === 'screen-record' || screenId === 'screen-settings') document.querySelector('.container').scrollTop = 0;
@@ -314,7 +321,17 @@
     }
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
+    // ★強制プランチェック（抜け道防止）
+    function applyPlanLimits() {
+        if (appSettings.plan === '無料') {
+            appSettings.enabledColors = appSettings.enabledColors.filter(c => c === 'aka' || c === 'kiiro');
+            if (appSettings.enabledColors.length === 0) appSettings.enabledColors = ['aka', 'kiiro'];
+            localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
+        }
+    }
+
     function startTraining() {
+        applyPlanLimits(); // ★開始直前に強制チェック
         if (appSettings.enabledColors.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         const container = document.getElementById('training-container'); container.innerHTML = '';
         appSettings.enabledColors.forEach(key => {
@@ -328,6 +345,7 @@
     }
 
     function startPractice(mode = 'normal') {
+        applyPlanLimits(); // ★開始直前に強制チェック
         gameState.mode = mode; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
         const pool = appSettings.enabledColors;
@@ -360,12 +378,7 @@
         if (gameState.currentQuestionIndex >= appSettings.questionCount) { showResult(); return; }
         gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
         document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
-        renderFlagButtons(); 
-        
-        // ★修正ポイント：画面を表示してからボタンのロックを解除する
-        showScreen('screen-practice'); 
-        isAnswering = true; 
-        playCurrentChord();
+        renderFlagButtons(); showScreen('screen-practice'); isAnswering = true; playCurrentChord();
         
         clearInterval(timerId); timeLeft = 10; document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
@@ -501,7 +514,19 @@
             saveData: JSON.stringify(currentSaveData) 
         };
 
-        fetch(GAS_ENDPOINT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(recordData) }).catch(err => console.log("記録保存エラー", err));
+        fetch(GAS_ENDPOINT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(recordData) })
+        .then(res => res.json())
+        .then(res => {
+            // ★記録エラー時のアラート追加
+            if(!res.success) {
+                alert("⚠️ きろくの保存に失敗しました: " + res.message);
+            }
+        })
+        .catch(err => {
+            console.log("記録保存エラー", err);
+            // ★通信エラー時のアラート追加
+            alert("⚠️ 通信エラー：きろくが保存できませんでした。電波の良いところで再度お試しください。");
+        });
     }
 
     function updateRecordScreen() {
@@ -612,13 +637,17 @@
 
     function verifyPasscode() {
         const pin = document.getElementById('pin-field').value;
-        if (pin === appSettings.parentPin || pin === "9999") { renderSettingsColors(); showScreen('screen-settings'); } 
+        // ★修正1: 9999のマスターPINを削除、保護者パスコードのみ許可
+        if (pin === appSettings.parentPin) { renderSettingsColors(); showScreen('screen-settings'); } 
         else { alert("パスコードがちがいます"); }
     }
 
     function renderSettingsColors() {
         const container = document.getElementById('settings-colors'); container.innerHTML = '';
         const isFreePlan = (appSettings.plan === '無料');
+        
+        // ★修正2: 無料プラン時のプレミアム案内パネルの表示切り替え
+        document.getElementById('premium-promo').style.display = isFreePlan ? "block" : "none";
         
         Object.keys(COLOR_DATA).forEach(key => {
             const data = COLOR_DATA[key]; 
