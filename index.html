@@ -65,9 +65,7 @@
     <div id="screen-home" class="screen">
         <div class="logo-area"><img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'"></div>
         
-        <!-- 現在のプラン表示用バッジ -->
         <div id="plan-badge" style="display:inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 5px;"></div>
-        
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         
         <div style="width: 100%;">
@@ -76,7 +74,6 @@
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
             <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
             <button class="btn btn-gray" onclick="slideIntoSettings()">⚙ せってい</button>
-            
             <button class="btn btn-outline" onclick="logoutStudent()" style="margin-top: 25px; padding: 12px; font-size: 16px;">🚪 ログアウト</button>
         </div>
     </div>
@@ -177,7 +174,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwwFvrR-mrTVpGTSg9ShGy5hh8dPMJVRwbxpmzUOPtkLX5UutnDQUXrE2_bC_c3Mw4V/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyBM0DDza6IHN9CpOMe4SaGhrpQg8JWPFDdhtvftlIKNBqZLwG84XkGHqU5IuSb4GOR/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -196,12 +193,12 @@
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
-    // ★褒め言葉のリスト（ランダムで選ばれる）
+    // ★修正1: 数字を {n} に置き換え、表示時に実際の連続回数を挿入する
     const PRAISE_1_2 = ["🌟 やったね！", "✨ できたね！", "🎈 そのちょうし！", "🌟 ピカッ！ あたり！", "✨ ニコニコ！ いいね！", "🌟 わぁい！", "✨ あたり！"];
-    const PRAISE_3_4 = ["🔥 3もん れんぞく！\nすごい すごい！", "🔥 3もん れんぞく！\nぐんぐん パワーアップ！", "🔥 3かい できたよ！\nえらい！"];
-    const PRAISE_5_6 = ["🚀 5もん れんぞく！\nちょう かっこいい！", "🚀 5もん れんぞく！\nびゅーんっと とまらない！", "🚀 5かい できたね！\nはなまる！"];
-    const PRAISE_7_9 = ["🎉 7もん れんぞく！\nあとすこしで ゴールだ！", "🎉 7もん れんぞく！\nわくわく ドキドキ！", "🎉 7かい できた！\nあともう ちょっと！"];
-    const PRAISE_10_PLUS = ["👑 10もん れんぞく！\nきみは チャンピオンだ！", "👑 10もん れんぞく！\nどっかーん！ ほんとに てんさい！！", "👑 10こ ぜんぶ できた！\nだいせいかい！ ぜっこうちょう！"];
+    const PRAISE_3_4 = ["🔥 {n}もん れんぞく！\nすごい すごい！", "🔥 {n}もん れんぞく！\nぐんぐん パワーアップ！", "🔥 {n}かい できたよ！\nえらい！"];
+    const PRAISE_5_6 = ["🚀 {n}もん れんぞく！\nちょう かっこいい！", "🚀 {n}もん れんぞく！\nびゅーんっと とまらない！", "🚀 {n}かい できたね！\nはなまる！"];
+    const PRAISE_7_9 = ["🎉 {n}もん れんぞく！\nあとすこしで ゴールだ！", "🎉 {n}もん れんぞく！\nわくわく ドキドキ！", "🎉 {n}かい できた！\nあともう ちょっと！"];
+    const PRAISE_10_PLUS = ["👑 {n}もん れんぞく！\nきみは チャンピオンだ！", "👑 {n}もん れんぞく！\nどっかーん！ ほんとに てんさい！！", "👑 {n}こ ぜんぶ できた！\nだいせいかい！ ぜっこうちょう！"];
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
     let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0 };
@@ -211,7 +208,6 @@
     const audioCache = {};
     let isAnswering = false; 
 
-    // グラフ用の変数
     let countChartInstance = null;
     let accuracyChartInstance = null;
 
@@ -241,7 +237,6 @@
         }
     }
 
-    // ログイン＆クラウド同期処理
     function authenticateStudent() {
         const studentId = document.getElementById('auth-student-id').value.trim();
         const password = document.getElementById('auth-password').value.trim();
@@ -259,7 +254,6 @@
             if (res.success) {
                 appSettings.studentId = studentId; appSettings.studentName = res.studentName; appSettings.plan = res.plan; 
                 
-                // 【クラウド同期】
                 if (res.saveData) {
                     try {
                         const parsedData = JSON.parse(res.saveData);
@@ -299,8 +293,14 @@
 
     function preloadAudios() { Object.keys(COLOR_DATA).forEach(key => { audioCache[key] = new Audio(COLOR_DATA[key].file); }); }
     function stopAllAudio() { Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; } }); }
+    
     function showScreen(screenId) {
         stopAllAudio(); 
+        
+        // ★修正2: 画面を切り替える時は必ずタイマーをクリアして誤作動を防ぐ
+        clearInterval(timerId); 
+        isAnswering = false;
+
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
         if(screenId === 'screen-record' || screenId === 'screen-settings') document.querySelector('.container').scrollTop = 0;
@@ -386,7 +386,6 @@
         });
     }
 
-    // ★判定処理（連続正解による褒め言葉の分岐を組み込み）
     function handleAnswer(selectedKey) {
         isAnswering = false; clearInterval(timerId);
         const correctKey = gameState.currentColorKey; const isCorrect = (selectedKey === correctKey);
@@ -400,7 +399,7 @@
             gameState.correctCount++; gameState.currentStreak++;
             if (gameState.currentStreak > gameState.bestStreak) gameState.bestStreak = gameState.currentStreak;
             
-            // 褒め言葉のランダム選択ロジック
+            // ★修正1: 褒め言葉の選択と、{n} への連続回数の代入
             let praise = "";
             let s = gameState.currentStreak;
             if (s >= 10) praise = PRAISE_10_PLUS[Math.floor(Math.random() * PRAISE_10_PLUS.length)];
@@ -409,7 +408,8 @@
             else if (s >= 3) praise = PRAISE_3_4[Math.floor(Math.random() * PRAISE_3_4.length)];
             else praise = PRAISE_1_2[Math.floor(Math.random() * PRAISE_1_2.length)];
 
-            // 画面への反映
+            praise = praise.replace(/\{n\}/g, s); // 空箱の {n} を実際の回数に置き換える
+
             document.getElementById('judge-result').innerText = "⭕ せいかい！"; document.getElementById('judge-result').style.color = "#4caf50";
             document.getElementById('judge-comment').innerText = praise;
             
@@ -442,15 +442,13 @@
         let totalCount = parseInt(localStorage.getItem('seguchi_total_count') || '0') + 1;
         localStorage.setItem('seguchi_total_count', totalCount);
         
-        // ★毎回の記録（セッション）を保存する処理（新しい折れ線グラフ用）
         const now = new Date();
         const timeLabel = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
         let sessionHistory = JSON.parse(localStorage.getItem('seguchi_session_history') || "[]");
         sessionHistory.push({ time: timeLabel, percent: percent });
-        if (sessionHistory.length > 15) sessionHistory.shift(); // 直近15回分を保持
+        if (sessionHistory.length > 15) sessionHistory.shift(); 
         localStorage.setItem('seguchi_session_history', JSON.stringify(sessionHistory));
 
-        // 日々の回数記録（棒グラフ用）
         const todayStr = now.toLocaleDateString('ja-JP');
         let dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
         if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== todayStr) {
@@ -469,7 +467,14 @@
         showScreen('screen-result');
     }
 
-    function confirmGoHome() { if(confirm("れんしゅうをやめて ホームにもどる？")) showScreen('screen-home'); }
+    function confirmGoHome() { 
+        if(confirm("れんしゅうをやめて ホームにもどる？")) {
+            // ホームに戻る際もタイマーと回答フラグをクリア
+            clearInterval(timerId); 
+            isAnswering = false;
+            showScreen('screen-home'); 
+        }
+    }
 
     function saveRecordToGAS(percent, score, bestStreak, totalCount, todayCount) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
@@ -527,12 +532,10 @@
         renderRecordCharts();
     }
 
-    // ★グラフを描画する処理（今回の大幅アップデート部分）
     function renderRecordCharts() {
         if (countChartInstance) countChartInstance.destroy();
         if (accuracyChartInstance) accuracyChartInstance.destroy();
 
-        // 1. 直近15回のプレイ正答率グラフ（折れ線グラフ）
         const sessionHistory = JSON.parse(localStorage.getItem('seguchi_session_history') || "[]");
         const labelsAcc = sessionHistory.map(item => item.time);
         const dataAcc = sessionHistory.map(item => item.percent);
@@ -544,14 +547,12 @@
                 labels: labelsAcc.length ? labelsAcc : ['データなし'],
                 datasets: [{
                     label: '正答率 (%)', data: dataAcc.length ? dataAcc : [0],
-                    backgroundColor: 'rgba(33, 150, 243, 0.2)', // 青ベースに変更
-                    borderColor: '#2196f3', borderWidth: 2, pointBackgroundColor: '#2196f3', fill: true, tension: 0.3
+                    backgroundColor: 'rgba(33, 150, 243, 0.2)', borderColor: '#2196f3', borderWidth: 2, pointBackgroundColor: '#2196f3', fill: true, tension: 0.3
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
         });
 
-        // 2. 日々の練習回数グラフ（棒グラフ）
         const dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
         const labelsCount = dailyHistory.map(item => {
             let parts = item.date.split('/');
@@ -559,7 +560,6 @@
         });
         const dataCount = dailyHistory.map(item => item.count || 0);
 
-        // プラグイン①：棒グラフの上に数字（〜かい）を表示する
         const countLabelsPlugin = {
             id: 'countLabels',
             afterDatasetsDraw(chart) {
@@ -577,12 +577,11 @@
             }
         };
 
-        // プラグイン②：5回のラインに赤い目標線を引く
         const targetLinePlugin = {
             id: 'targetLine',
             beforeDraw(chart) {
                 const ctx = chart.ctx; const yAxis = chart.scales.y; const xAxis = chart.scales.x;
-                const y5 = yAxis.getPixelForValue(5); // 目標5回
+                const y5 = yAxis.getPixelForValue(5); 
                 if (y5 >= yAxis.top && y5 <= yAxis.bottom) {
                     ctx.save(); ctx.beginPath(); ctx.moveTo(xAxis.left, y5); ctx.lineTo(xAxis.right, y5);
                     ctx.lineWidth = 2; ctx.strokeStyle = '#f44336'; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.restore();
@@ -597,19 +596,17 @@
                 labels: labelsCount.length ? labelsCount : ['データなし'],
                 datasets: [{
                     label: '練習回数 (回)', data: dataCount.length ? dataCount : [0],
-                    // ★5回達成で色を金（オレンジ）に変える仕掛け
                     backgroundColor: dataCount.length ? dataCount.map(c => c >= 5 ? 'rgba(255, 152, 0, 0.85)' : 'rgba(76, 175, 80, 0.7)') : ['rgba(76, 175, 80, 0.7)'],
                     borderColor: dataCount.length ? dataCount.map(c => c >= 5 ? '#ff9800' : '#4caf50') : ['#4caf50'],
                     borderWidth: 1, borderRadius: 4
                 }]
             },
             options: { 
-                responsive: true, maintainAspectRatio: false, 
-                layout: { padding: { top: 20 } }, // 数字を表示するスペースを空ける
+                responsive: true, maintainAspectRatio: false, layout: { padding: { top: 20 } }, 
                 scales: { y: { min: 0, suggestedMax: 6, ticks: { stepSize: 1 } } }, 
                 plugins: { legend: { display: false } } 
             },
-            plugins: [countLabelsPlugin, targetLinePlugin] // プラグインを有効化
+            plugins: [countLabelsPlugin, targetLinePlugin] 
         });
     }
 
