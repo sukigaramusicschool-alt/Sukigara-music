@@ -19,7 +19,7 @@
         .emoji-large { font-size: 64px; margin-bottom: 20px; }
         .info-text { font-size: 18px; margin: 10px 0; font-weight: bold; }
         .sub-text { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .judge-comment-text { font-size: 32px; font-weight: bold; margin-bottom: 20px; }
+        .judge-comment-text { font-size: 28px; font-weight: bold; margin-bottom: 20px; line-height: 1.3; }
         .btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; margin: 8px 0; cursor: pointer; transition: transform 0.1s, opacity 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn:active { transform: scale(0.98); opacity: 0.9; }
         .btn-main { background-color: #4caf50; color: white; }
@@ -136,11 +136,11 @@
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
 
-            <!-- ★グラフ復活エリア -->
-            <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 日々のせいとうりつ (最高%)</div>
+            <!-- ★グラフ復活＆改善エリア -->
+            <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 さいきんの せいとうりつ (直近15回)</div>
             <div class="chart-container"><canvas id="accuracyChart"></canvas></div>
 
-            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 日々のれんしゅうかいすう</div>
+            <div style="font-weight:bold; margin-top: 10px; color: #333;">📊 日々のれんしゅうかいすう (目標: 1日5回)</div>
             <div class="chart-container"><canvas id="countChart"></canvas></div>
         </div>
         <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">もどる</button>
@@ -177,7 +177,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyJ6n9Rs_yr_Hkzk_1DLGlUB_CR-x4mGdUwKYK_4xcYBoPhhBy7J6H4ynVjAL72214G/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwwFvrR-mrTVpGTSg9ShGy5hh8dPMJVRwbxpmzUOPtkLX5UutnDQUXrE2_bC_c3Mw4V/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -195,6 +195,13 @@
         hai:      { name: "べれふぁ",   emoji: "🩶", color: "#9e9e9e", file: "hai.mp3" },
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
+
+    // ★褒め言葉のリスト（ランダムで選ばれる）
+    const PRAISE_1_2 = ["🌟 やったね！", "✨ できたね！", "🎈 そのちょうし！", "🌟 ピカッ！ あたり！", "✨ ニコニコ！ いいね！", "🌟 わぁい！", "✨ あたり！"];
+    const PRAISE_3_4 = ["🔥 3もん れんぞく！\nすごい すごい！", "🔥 3もん れんぞく！\nぐんぐん パワーアップ！", "🔥 3かい できたよ！\nえらい！"];
+    const PRAISE_5_6 = ["🚀 5もん れんぞく！\nちょう かっこいい！", "🚀 5もん れんぞく！\nびゅーんっと とまらない！", "🚀 5かい できたね！\nはなまる！"];
+    const PRAISE_7_9 = ["🎉 7もん れんぞく！\nあとすこしで ゴールだ！", "🎉 7もん れんぞく！\nわくわく ドキドキ！", "🎉 7かい できた！\nあともう ちょっと！"];
+    const PRAISE_10_PLUS = ["👑 10もん れんぞく！\nきみは チャンピオンだ！", "👑 10もん れんぞく！\nどっかーん！ ほんとに てんさい！！", "👑 10こ ぜんぶ できた！\nだいせいかい！ ぜっこうちょう！"];
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
     let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0 };
@@ -226,16 +233,11 @@
 
     function updateHomeDisplay() {
         document.getElementById('user-display-name').innerText = `👤 ${appSettings.studentName} さん`;
-        
         const badge = document.getElementById('plan-badge');
         if (appSettings.plan === 'プレミアム') {
-            badge.innerText = "✨ プレミアムプラン";
-            badge.style.backgroundColor = "#ffc107";
-            badge.style.color = "#333";
+            badge.innerText = "✨ プレミアムプラン"; badge.style.backgroundColor = "#ffc107"; badge.style.color = "#333";
         } else {
-            badge.innerText = "🌱 無料プラン";
-            badge.style.backgroundColor = "#e0e0e0";
-            badge.style.color = "#666";
+            badge.innerText = "🌱 無料プラン"; badge.style.backgroundColor = "#e0e0e0"; badge.style.color = "#666";
         }
     }
 
@@ -244,49 +246,38 @@
         const studentId = document.getElementById('auth-student-id').value.trim();
         const password = document.getElementById('auth-password').value.trim();
         const loginBtn = document.getElementById('login-btn');
-        
         if (!studentId || !password) { alert("せいとIDとパスワードを 入れてね"); return; }
-
         loginBtn.innerText = "つうしん中..."; loginBtn.disabled = true;
 
         fetch(GAS_ENDPOINT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({ action: "login", studentId: studentId, password: password })
         })
         .then(res => res.json())
         .then(res => {
             loginBtn.innerText = "ログイン"; loginBtn.disabled = false;
-            
             if (res.success) {
-                appSettings.studentId = studentId;
-                appSettings.studentName = res.studentName;
-                appSettings.plan = res.plan; // プランを保存
+                appSettings.studentId = studentId; appSettings.studentName = res.studentName; appSettings.plan = res.plan; 
                 
-                // 【クラウド同期】過去のセーブデータがあれば復元する
+                // 【クラウド同期】
                 if (res.saveData) {
                     try {
                         const parsedData = JSON.parse(res.saveData);
                         if (parsedData.color_stats) localStorage.setItem('seguchi_color_stats', JSON.stringify(parsedData.color_stats));
                         if (parsedData.daily_history) localStorage.setItem('seguchi_daily_history', JSON.stringify(parsedData.daily_history));
+                        if (parsedData.session_history) localStorage.setItem('seguchi_session_history', JSON.stringify(parsedData.session_history));
                         if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
                         if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
-                    } catch(e) {
-                        console.log("セーブデータの復元に失敗しました", e);
-                    }
+                    } catch(e) { console.log("セーブデータの復元に失敗しました", e); }
                 }
 
-                // 無料プランの場合は、強制的に「あか」「きいろ」のみに絞る
                 if (appSettings.plan === '無料') {
                     appSettings.enabledColors = appSettings.enabledColors.filter(c => c === 'aka' || c === 'kiiro');
                     if (appSettings.enabledColors.length === 0) appSettings.enabledColors = ['aka', 'kiiro'];
                 }
-
                 localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
                 localStorage.setItem('seguchi_authenticated', 'true');
-                
-                updateHomeDisplay();
-                showScreen('screen-home');
+                updateHomeDisplay(); showScreen('screen-home');
             } else {
                 alert(res.message || "【IDかパスワードが違います】\nもう一度確認してください。");
             }
@@ -298,24 +289,16 @@
         });
     }
 
-    // ログアウト処理
     function logoutStudent() {
         if (confirm("ログアウトして ログインがめんに もどる？")) {
             localStorage.removeItem('seguchi_authenticated');
-            document.getElementById('auth-student-id').value = "";
-            document.getElementById('auth-password').value = "";
+            document.getElementById('auth-student-id').value = ""; document.getElementById('auth-password').value = "";
             showScreen('screen-auth');
         }
     }
 
-    function preloadAudios() {
-        Object.keys(COLOR_DATA).forEach(key => { audioCache[key] = new Audio(COLOR_DATA[key].file); });
-    }
-
-    function stopAllAudio() {
-        Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; } });
-    }
-
+    function preloadAudios() { Object.keys(COLOR_DATA).forEach(key => { audioCache[key] = new Audio(COLOR_DATA[key].file); }); }
+    function stopAllAudio() { Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; } }); }
     function showScreen(screenId) {
         stopAllAudio(); 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -331,11 +314,9 @@
 
     function playChord(colorKey) {
         if (!colorKey || !audioCache[colorKey]) return;
-        stopAllAudio(); 
-        audioCache[colorKey].currentTime = 0;
+        stopAllAudio(); audioCache[colorKey].currentTime = 0;
         audioCache[colorKey].play().catch(e => console.log("Audio error:", e));
     }
-
     function playCurrentChord() { playChord(gameState.currentColorKey); }
 
     function startTraining() {
@@ -354,7 +335,6 @@
     function startPractice(mode = 'normal') {
         gameState.mode = mode; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
-        
         const pool = appSettings.enabledColors;
         if (pool.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         
@@ -385,13 +365,9 @@
         if (gameState.currentQuestionIndex >= appSettings.questionCount) { showResult(); return; }
         gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
         document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
-        renderFlagButtons();
-        isAnswering = true;
-        showScreen('screen-practice');
-        playCurrentChord();
+        renderFlagButtons(); isAnswering = true; showScreen('screen-practice'); playCurrentChord();
         
-        clearInterval(timerId); timeLeft = 10;
-        document.getElementById('timer-sec').innerText = timeLeft;
+        clearInterval(timerId); timeLeft = 10; document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
             timeLeft--; document.getElementById('timer-sec').innerText = timeLeft;
             if (timeLeft <= 0) { clearInterval(timerId); handleAnswer(null); }
@@ -410,6 +386,7 @@
         });
     }
 
+    // ★判定処理（連続正解による褒め言葉の分岐を組み込み）
     function handleAnswer(selectedKey) {
         isAnswering = false; clearInterval(timerId);
         const correctKey = gameState.currentColorKey; const isCorrect = (selectedKey === correctKey);
@@ -422,8 +399,20 @@
         if (isCorrect) {
             gameState.correctCount++; gameState.currentStreak++;
             if (gameState.currentStreak > gameState.bestStreak) gameState.bestStreak = gameState.currentStreak;
+            
+            // 褒め言葉のランダム選択ロジック
+            let praise = "";
+            let s = gameState.currentStreak;
+            if (s >= 10) praise = PRAISE_10_PLUS[Math.floor(Math.random() * PRAISE_10_PLUS.length)];
+            else if (s >= 7) praise = PRAISE_7_9[Math.floor(Math.random() * PRAISE_7_9.length)];
+            else if (s >= 5) praise = PRAISE_5_6[Math.floor(Math.random() * PRAISE_5_6.length)];
+            else if (s >= 3) praise = PRAISE_3_4[Math.floor(Math.random() * PRAISE_3_4.length)];
+            else praise = PRAISE_1_2[Math.floor(Math.random() * PRAISE_1_2.length)];
+
+            // 画面への反映
             document.getElementById('judge-result').innerText = "⭕ せいかい！"; document.getElementById('judge-result').style.color = "#4caf50";
-            document.getElementById('judge-comment').innerText = "🌟 いいね！";
+            document.getElementById('judge-comment').innerText = praise;
+            
             document.getElementById('btn-replay-correct').style.display = "none";
             document.getElementById('judge-correct-info').style.display = "none";
         } else {
@@ -453,16 +442,22 @@
         let totalCount = parseInt(localStorage.getItem('seguchi_total_count') || '0') + 1;
         localStorage.setItem('seguchi_total_count', totalCount);
         
-        const today = new Date().toLocaleDateString('ja-JP');
-        
+        // ★毎回の記録（セッション）を保存する処理（新しい折れ線グラフ用）
+        const now = new Date();
+        const timeLabel = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+        let sessionHistory = JSON.parse(localStorage.getItem('seguchi_session_history') || "[]");
+        sessionHistory.push({ time: timeLabel, percent: percent });
+        if (sessionHistory.length > 15) sessionHistory.shift(); // 直近15回分を保持
+        localStorage.setItem('seguchi_session_history', JSON.stringify(sessionHistory));
+
+        // 日々の回数記録（棒グラフ用）
+        const todayStr = now.toLocaleDateString('ja-JP');
         let dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
-        if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== today) {
-            dailyHistory.push({ date: today, count: 1, bestPercent: percent });
+        if (dailyHistory.length === 0 || dailyHistory[dailyHistory.length - 1].date !== todayStr) {
+            dailyHistory.push({ date: todayStr, count: 1, bestPercent: percent });
         } else {
             dailyHistory[dailyHistory.length - 1].count++;
-            if (percent > dailyHistory[dailyHistory.length - 1].bestPercent) {
-                dailyHistory[dailyHistory.length - 1].bestPercent = percent;
-            }
+            if (percent > dailyHistory[dailyHistory.length - 1].bestPercent) dailyHistory[dailyHistory.length - 1].bestPercent = percent;
         }
         if (dailyHistory.length > 14) dailyHistory.shift(); 
         localStorage.setItem('seguchi_daily_history', JSON.stringify(dailyHistory));
@@ -476,53 +471,34 @@
 
     function confirmGoHome() { if(confirm("れんしゅうをやめて ホームにもどる？")) showScreen('screen-home'); }
 
-    // GASへの記録＆セーブデータ送信
     function saveRecordToGAS(percent, score, bestStreak, totalCount, todayCount) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
-        let readableStatsText = "";
-        let weakColorName = "なし";
-        let lowestPercent = 100;
-
+        let readableStatsText = ""; let weakColorName = "なし"; let lowestPercent = 100;
         for (let key in stats) {
             if (COLOR_DATA[key] && stats[key].total > 0) {
                 let pct = Math.round((stats[key].correct / stats[key].total) * 100);
                 readableStatsText += `${COLOR_DATA[key].name}: ${pct}% (${stats[key].correct}/${stats[key].total}回)\n`;
-                if (pct < lowestPercent && stats[key].total >= 3) {
-                    lowestPercent = pct;
-                    weakColorName = `${COLOR_DATA[key].name} (${pct}%)`;
-                }
+                if (pct < lowestPercent && stats[key].total >= 3) { lowestPercent = pct; weakColorName = `${COLOR_DATA[key].name} (${pct}%)`; }
             }
         }
         if (!readableStatsText) readableStatsText = "データなし";
 
-        // クラウド同期用に現在の全セーブデータをパッケージ化
         const currentSaveData = {
             color_stats: JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}'),
             daily_history: JSON.parse(localStorage.getItem('seguchi_daily_history') || '[]'),
+            session_history: JSON.parse(localStorage.getItem('seguchi_session_history') || '[]'),
             total_count: parseInt(localStorage.getItem('seguchi_total_count') || '0'),
             overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0')
         };
 
         const recordData = {
-            action: "saveRecord",
-            timestamp: new Date().toLocaleString("ja-JP"),
-            studentId: appSettings.studentId,
-            studentName: appSettings.studentName,
-            mode: gameState.mode,
-            percent: percent,
-            score: score,
-            bestStreak: bestStreak,
-            totalCount: totalCount,
-            todayCount: todayCount,
+            action: "saveRecord", timestamp: new Date().toLocaleString("ja-JP"), studentId: appSettings.studentId, studentName: appSettings.studentName,
+            mode: gameState.mode, percent: percent, score: score, bestStreak: bestStreak, totalCount: totalCount, todayCount: todayCount,
             colorStats: `【最も苦手】${weakColorName}\n\n【詳細】\n${readableStatsText}`,
-            saveData: JSON.stringify(currentSaveData) // 同期用データを追加
+            saveData: JSON.stringify(currentSaveData) 
         };
 
-        fetch(GAS_ENDPOINT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(recordData)
-        }).catch(err => console.log("記録保存エラー", err));
+        fetch(GAS_ENDPOINT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(recordData) }).catch(err => console.log("記録保存エラー", err));
     }
 
     function updateRecordScreen() {
@@ -551,45 +527,89 @@
         renderRecordCharts();
     }
 
+    // ★グラフを描画する処理（今回の大幅アップデート部分）
     function renderRecordCharts() {
-        const history = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
         if (countChartInstance) countChartInstance.destroy();
         if (accuracyChartInstance) accuracyChartInstance.destroy();
 
-        const labels = history.map(item => {
-            let parts = item.date.split('/');
-            return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
-        });
+        // 1. 直近15回のプレイ正答率グラフ（折れ線グラフ）
+        const sessionHistory = JSON.parse(localStorage.getItem('seguchi_session_history') || "[]");
+        const labelsAcc = sessionHistory.map(item => item.time);
+        const dataAcc = sessionHistory.map(item => item.percent);
 
         const ctxAcc = document.getElementById('accuracyChart').getContext('2d');
-        const dataAcc = history.map(item => item.bestPercent || 0);
         accuracyChartInstance = new Chart(ctxAcc, {
             type: 'line',
             data: {
-                labels: labels.length ? labels : ['データなし'],
+                labels: labelsAcc.length ? labelsAcc : ['データなし'],
                 datasets: [{
-                    label: '最高正答率 (%)',
-                    data: dataAcc.length ? dataAcc : [0],
-                    backgroundColor: 'rgba(255, 152, 0, 0.2)',
-                    borderColor: '#ff9800', borderWidth: 2, pointBackgroundColor: '#ff9800', fill: true, tension: 0.3
+                    label: '正答率 (%)', data: dataAcc.length ? dataAcc : [0],
+                    backgroundColor: 'rgba(33, 150, 243, 0.2)', // 青ベースに変更
+                    borderColor: '#2196f3', borderWidth: 2, pointBackgroundColor: '#2196f3', fill: true, tension: 0.3
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100, ticks: { stepSize: 20 } } }, plugins: { legend: { display: false } } }
         });
 
+        // 2. 日々の練習回数グラフ（棒グラフ）
+        const dailyHistory = JSON.parse(localStorage.getItem('seguchi_daily_history') || "[]");
+        const labelsCount = dailyHistory.map(item => {
+            let parts = item.date.split('/');
+            return parts.length === 3 ? `${parts[1]}/${parts[2]}` : item.date;
+        });
+        const dataCount = dailyHistory.map(item => item.count || 0);
+
+        // プラグイン①：棒グラフの上に数字（〜かい）を表示する
+        const countLabelsPlugin = {
+            id: 'countLabels',
+            afterDatasetsDraw(chart) {
+                const ctx = chart.ctx;
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {
+                        const data = dataset.data[index];
+                        if (data > 0) {
+                            ctx.fillStyle = '#333'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+                            ctx.fillText(data + 'かい', bar.x, bar.y - 5);
+                        }
+                    });
+                });
+            }
+        };
+
+        // プラグイン②：5回のラインに赤い目標線を引く
+        const targetLinePlugin = {
+            id: 'targetLine',
+            beforeDraw(chart) {
+                const ctx = chart.ctx; const yAxis = chart.scales.y; const xAxis = chart.scales.x;
+                const y5 = yAxis.getPixelForValue(5); // 目標5回
+                if (y5 >= yAxis.top && y5 <= yAxis.bottom) {
+                    ctx.save(); ctx.beginPath(); ctx.moveTo(xAxis.left, y5); ctx.lineTo(xAxis.right, y5);
+                    ctx.lineWidth = 2; ctx.strokeStyle = '#f44336'; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.restore();
+                }
+            }
+        };
+
         const ctxCount = document.getElementById('countChart').getContext('2d');
-        const dataCount = history.map(item => item.count || 0);
         countChartInstance = new Chart(ctxCount, {
             type: 'bar', 
             data: {
-                labels: labels.length ? labels : ['データなし'],
+                labels: labelsCount.length ? labelsCount : ['データなし'],
                 datasets: [{
-                    label: '練習回数 (回)',
-                    data: dataCount.length ? dataCount : [0],
-                    backgroundColor: 'rgba(76, 175, 80, 0.7)', borderColor: '#4caf50', borderWidth: 1, borderRadius: 4
+                    label: '練習回数 (回)', data: dataCount.length ? dataCount : [0],
+                    // ★5回達成で色を金（オレンジ）に変える仕掛け
+                    backgroundColor: dataCount.length ? dataCount.map(c => c >= 5 ? 'rgba(255, 152, 0, 0.85)' : 'rgba(76, 175, 80, 0.7)') : ['rgba(76, 175, 80, 0.7)'],
+                    borderColor: dataCount.length ? dataCount.map(c => c >= 5 ? '#ff9800' : '#4caf50') : ['#4caf50'],
+                    borderWidth: 1, borderRadius: 4
                 }]
             },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, ticks: { stepSize: 1 } } }, plugins: { legend: { display: false } } }
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                layout: { padding: { top: 20 } }, // 数字を表示するスペースを空ける
+                scales: { y: { min: 0, suggestedMax: 6, ticks: { stepSize: 1 } } }, 
+                plugins: { legend: { display: false } } 
+            },
+            plugins: [countLabelsPlugin, targetLinePlugin] // プラグインを有効化
         });
     }
 
@@ -601,18 +621,14 @@
         else { alert("パスコードがちがいます"); }
     }
 
-    // 【プラン判定による設定画面のグレーアウト処理】
     function renderSettingsColors() {
         const container = document.getElementById('settings-colors'); container.innerHTML = '';
-        
-        // 無料プランかどうかを判定
         const isFreePlan = (appSettings.plan === '無料');
         
         Object.keys(COLOR_DATA).forEach(key => {
             const data = COLOR_DATA[key]; 
             const isChecked = appSettings.enabledColors.includes(key) ? "checked" : "";
             
-            // 無料版で「あか・きいろ」以外はチェックできずグレーアウト
             const isPremiumColor = (key !== 'aka' && key !== 'kiiro');
             const isDisabled = (isFreePlan && isPremiumColor) ? "disabled" : "";
             const textStyle = isDisabled ? "color: #bbb;" : "";
