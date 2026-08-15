@@ -133,7 +133,6 @@
             <div style="font-weight:bold; margin-top: 10px; color: #333;">🎵 おとの とくい・にがて</div>
             <div id="rec-color-stats" style="background: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #ccc; max-height: 150px; overflow-y: auto;"></div>
 
-            <!-- ★グラフ復活＆改善エリア -->
             <div style="font-weight:bold; margin-top: 20px; color: #333;">📊 さいきんの せいとうりつ (直近15回)</div>
             <div class="chart-container"><canvas id="accuracyChart"></canvas></div>
 
@@ -174,7 +173,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbyBM0DDza6IHN9CpOMe4SaGhrpQg8JWPFDdhtvftlIKNBqZLwG84XkGHqU5IuSb4GOR/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwVNbBD0mCnG5AOVFWkQASoaHxRW0daSMisPUpD_ahTi8A16Up-ZNFgDK1QB6t9y9sH/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -193,7 +192,6 @@
         mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
-    // ★修正1: 数字を {n} に置き換え、表示時に実際の連続回数を挿入する
     const PRAISE_1_2 = ["🌟 やったね！", "✨ できたね！", "🎈 そのちょうし！", "🌟 ピカッ！ あたり！", "✨ ニコニコ！ いいね！", "🌟 わぁい！", "✨ あたり！"];
     const PRAISE_3_4 = ["🔥 {n}もん れんぞく！\nすごい すごい！", "🔥 {n}もん れんぞく！\nぐんぐん パワーアップ！", "🔥 {n}かい できたよ！\nえらい！"];
     const PRAISE_5_6 = ["🚀 {n}もん れんぞく！\nちょう かっこいい！", "🚀 {n}もん れんぞく！\nびゅーんっと とまらない！", "🚀 {n}かい できたね！\nはなまる！"];
@@ -296,11 +294,8 @@
     
     function showScreen(screenId) {
         stopAllAudio(); 
-        
-        // ★修正2: 画面を切り替える時は必ずタイマーをクリアして誤作動を防ぐ
         clearInterval(timerId); 
-        isAnswering = false;
-
+        isAnswering = false; // 画面切り替え時は安全のためいったんロック
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
         if(screenId === 'screen-record' || screenId === 'screen-settings') document.querySelector('.container').scrollTop = 0;
@@ -365,7 +360,12 @@
         if (gameState.currentQuestionIndex >= appSettings.questionCount) { showResult(); return; }
         gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
         document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
-        renderFlagButtons(); isAnswering = true; showScreen('screen-practice'); playCurrentChord();
+        renderFlagButtons(); 
+        
+        // ★修正ポイント：画面を表示してからボタンのロックを解除する
+        showScreen('screen-practice'); 
+        isAnswering = true; 
+        playCurrentChord();
         
         clearInterval(timerId); timeLeft = 10; document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
@@ -399,7 +399,6 @@
             gameState.correctCount++; gameState.currentStreak++;
             if (gameState.currentStreak > gameState.bestStreak) gameState.bestStreak = gameState.currentStreak;
             
-            // ★修正1: 褒め言葉の選択と、{n} への連続回数の代入
             let praise = "";
             let s = gameState.currentStreak;
             if (s >= 10) praise = PRAISE_10_PLUS[Math.floor(Math.random() * PRAISE_10_PLUS.length)];
@@ -408,7 +407,7 @@
             else if (s >= 3) praise = PRAISE_3_4[Math.floor(Math.random() * PRAISE_3_4.length)];
             else praise = PRAISE_1_2[Math.floor(Math.random() * PRAISE_1_2.length)];
 
-            praise = praise.replace(/\{n\}/g, s); // 空箱の {n} を実際の回数に置き換える
+            praise = praise.replace(/\{n\}/g, s); 
 
             document.getElementById('judge-result').innerText = "⭕ せいかい！"; document.getElementById('judge-result').style.color = "#4caf50";
             document.getElementById('judge-comment').innerText = praise;
@@ -469,7 +468,6 @@
 
     function confirmGoHome() { 
         if(confirm("れんしゅうをやめて ホームにもどる？")) {
-            // ホームに戻る際もタイマーと回答フラグをクリア
             clearInterval(timerId); 
             isAnswering = false;
             showScreen('screen-home'); 
