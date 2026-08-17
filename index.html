@@ -14,10 +14,10 @@
         .screen.active { display: flex; }
         .logo-area { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .logo-img-large { width: 85%; max-width: 300px; height: auto; object-fit: contain; }
-        .logo-img-small { width: 80%; max-width: 250px; height: auto; object-fit: contain; margin-bottom: 15px; margin-top: 15px; }
+        .logo-img-small { width: 80%; max-width: 200px; height: auto; object-fit: contain; margin-bottom: 5px; margin-top: 5px; }
         h2 { font-size: 20px; margin: 5px 0; }
         .emoji-large { font-size: 64px; margin-bottom: 20px; }
-        .info-text { font-size: 18px; margin: 10px 0; font-weight: bold; }
+        .info-text { font-size: 18px; margin: 5px 0; font-weight: bold; }
         .sub-text { font-size: 14px; color: #666; margin-bottom: 20px; }
         .judge-comment-text { font-size: 28px; font-weight: bold; margin-bottom: 20px; line-height: 1.3; }
         .btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; margin: 8px 0; cursor: pointer; transition: transform 0.1s, opacity 0.1s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -25,16 +25,16 @@
         .btn-main { background-color: #4caf50; color: white; }
         .btn-sub { background-color: #2196f3; color: white; }
         .btn-orange { background-color: #ff9800; color: white; }
-        .btn-purple { background-color: #9c27b0; color: white; } /* シールちょう用ボタン色 */
+        .btn-purple { background-color: #9c27b0; color: white; } 
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
         .btn-danger { background-color: #f44336; color: white; } 
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: #666; box-shadow: none; }
         .btn-home-mini { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; border-radius: 50%; background: #eee; border: none; font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #666; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 10; }
-        .timer-box { font-size: 22px; font-weight: bold; color: #ff5722; background: #fff3e0; padding: 6px 16px; border-radius: 20px; margin: 10px 0; display: inline-block; border: 2px solid #ffb74d; }
-        .flag-list { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 15px; padding-bottom: 20px; }
-        .btn-flag { width: 100%; aspect-ratio: 1 / 1; padding: 5px; font-size: 15px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); border: 4px solid rgba(255,255,255,0.4); border-radius: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.15); cursor: pointer; }
+        .timer-box { font-size: 20px; font-weight: bold; color: #ff5722; background: #fff3e0; padding: 4px 16px; border-radius: 20px; margin: 5px 0; display: inline-block; border: 2px solid #ffb74d; }
+        .flag-list { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 5px; padding-bottom: 5px; }
+        .btn-flag { width: 100%; aspect-ratio: 1 / 1; padding: 2px; font-size: 14px; font-weight: bold; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.4); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); cursor: pointer; }
         .btn-flag:active { transform: scale(0.92); opacity: 0.9; }
-        .btn-flag .emoji { font-size: 30px; line-height: 1; text-shadow: none; margin-bottom: 2px; }
+        .btn-flag .emoji { font-size: 28px; line-height: 1; text-shadow: none; margin-bottom: 0px; }
         .judge-display { font-size: 44px; font-weight: bold; margin: 20px 0; }
         .form-group { width: 100%; text-align: left; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; }
@@ -65,7 +65,7 @@
         <div class="logo-area"><img src="IMG_0738.PNG" alt="Sukigara Music School" class="logo-img-large" onerror="this.style.display='none'"></div>
         <h2>🔑 ログイン</h2>
         <p class="sub-text">せいとID と パスワードを 入れてね</p>
-        <input type="text" id="auth-student-id" class="input-text" placeholder="せいとID (例: 001)" inputmode="numeric">
+        <input type="text" id="auth-student-id" class="input-text" placeholder="せいとID" inputmode="numeric">
         <input type="password" id="auth-password" class="input-text" placeholder="パスワード" inputmode="numeric">
         <button id="login-btn" class="btn btn-main" onclick="authenticateStudent()">ログイン</button>
     </div>
@@ -78,8 +78,7 @@
         <p id="user-display-name" style="font-size:16px; font-weight:bold; color:#1e88e5; margin-top:5px; margin-bottom:15px;"></p>
         
         <div style="width: 100%;">
-            <button class="btn btn-main" onclick="startPractice('normal')">▶ れんしゅうする</button>
-            <button class="btn btn-danger" onclick="startPractice('weakness')">🔥 もっとれんしゅう</button>
+            <button class="btn btn-main" onclick="startPractice()">▶ れんしゅうする</button>
             <button class="btn btn-sub" onclick="startTraining()">🎹 しゅぎょうする</button>
             <button class="btn btn-purple" onclick="showScreen('screen-badges'); updateBadgesScreen();">📔 シールちょう</button>
             <button class="btn btn-orange" onclick="showScreen('screen-record'); updateRecordScreen();">📈 きろく</button>
@@ -92,18 +91,17 @@
     <div id="screen-training" class="screen">
         <button class="btn-home-mini" onclick="showScreen('screen-home')" title="ホームへもどる">🏠</button>
         <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small" onerror="this.style.display='none'">
-        <h2>🎹 しゅぎょうモード</h2>
-        <p class="sub-text" style="margin-top: 0; margin-bottom: 10px;">すきなボタンをおして 音をたしかめよう</p>
+        <h2 style="margin-top: 0;">🎹 しゅぎょうモード</h2>
+        <p class="sub-text" style="margin-top: 0; margin-bottom: 5px;">すきなボタンをおして 音をたしかめよう</p>
         <div id="training-container" class="flag-list"></div>
     </div>
 
     <!-- 2. 練習画面 -->
     <div id="screen-practice" class="screen">
         <button class="btn-home-mini" onclick="confirmGoHome()" title="ホームへもどる">🏠</button>
-        <img src="IMG_0737.PNG" alt="Sukigara Music School" class="logo-img-small" onerror="this.style.display='none'">
-        <div id="practice-progress" class="info-text" style="margin-top: -5px;">もんだい 1 / 10</div>
+        <div id="practice-progress" class="info-text" style="margin-top: 15px;">もんだい 1 / 10</div>
         <div class="timer-box">⏱ のこり <span id="timer-sec">10</span> びょう</div>
-        <button class="btn btn-sub" style="width: auto; padding: 8px 20px; font-size: 16px; margin-bottom: 5px; border-radius: 20px;" onclick="playCurrentChord()">🎵 もういちどきく</button>
+        <button class="btn btn-sub" style="width: auto; padding: 8px 20px; font-size: 14px; margin-bottom: 5px; border-radius: 20px;" onclick="playCurrentChord()">🎵 もういちどきく</button>
         <div id="flag-container" class="flag-list"></div>
     </div>
 
@@ -118,7 +116,6 @@
 
     <!-- 4. 練習終了画面 -->
     <div id="screen-result" class="screen">
-        <!-- ★ シール獲得のポップアップ -->
         <div id="new-badge-notification" style="width:100%; display:none; background:#fff9c4; padding:15px; border-radius:12px; border:2px solid #ffeb3b; margin-bottom:15px; animation: pop 0.5s ease-out; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-weight:bold; color:#f57f17; margin-bottom:5px;">🎉 新しいシールをゲットしたよ！</div>
             <div id="new-badge-list" style="display: flex; flex-direction: column; gap: 5px;"></div>
@@ -202,7 +199,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxZiSWykV9ZYsIugHfdr0j3EHnj-_i2P5cL-zralUVHgu_jcWrsmmS5vHN40uDjqaUI/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz0IqNa2SLk8VxKCqZta0ZxetsYowlzGtMq-NTfVzGLjIXa0dqI-eGD0_blAC3I66d3/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -212,7 +209,7 @@
         midori:   { name: "みどり",     emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
         orange:   { name: "おれんじ",   emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
         murasaki: { name: "むらさき",   emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
-        pink:     { name: "ぴんく",     emoji: "🌸", color: "#f06292", file: "pink.mp3" }, 
+        pink:     { name: "ぴんく",     emoji: "<span style='color:#f06292;'>■</span>", color: "#f06292", file: "pink.mp3" }, 
         chairo:   { name: "ちゃいろ",   emoji: "🟫", color: "#795548", file: "chairo.mp3" },
         kimidori: { name: "らちすみ",   emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
         hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" },
@@ -227,7 +224,6 @@
     const PRAISE_7_9 = ["🎉 {n}もん れんぞく！\nあとすこしで ゴールだ！", "🎉 {n}もん れんぞく！\nわくわく ドキドキ！", "🎉 {n}かい できた！\nあともう ちょっと！"];
     const PRAISE_10_PLUS = ["👑 {n}もん れんぞく！\nきみは チャンピオンだ！", "👑 {n}もん れんぞく！\nどっかーん！ ほんとに てんさい！！", "👑 {n}こ ぜんぶ できた！\nだいせいかい！ ぜっこうちょう！"];
 
-    // ★ シールちょうのデータ定義
     const BADGES_INFO = [
         { id: 'play_1', emoji: '🔰', name: 'はじめての れんしゅう' },
         { id: 'play_10', emoji: '🥚', name: 'おんかん たまご' },
@@ -238,7 +234,6 @@
         { id: 'perfect_10', emoji: '👑', name: '10もん パーフェクト！' },
         { id: 'speed_star', emoji: '🚀', name: 'スピードスター！' }
     ];
-    // ★ 色マスターシールを自動生成
     Object.keys(COLOR_DATA).forEach(k => {
         BADGES_INFO.push({ id: 'master_' + k, emoji: COLOR_DATA[k].emoji, name: COLOR_DATA[k].name + '<br>マスター' });
     });
@@ -306,7 +301,6 @@
                         if (parsedData.session_history) localStorage.setItem('seguchi_session_history', JSON.stringify(parsedData.session_history));
                         if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
                         if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
-                        // ★ シールデータの復元
                         if (parsedData.earned_badges) localStorage.setItem('seguchi_earned_badges', JSON.stringify(parsedData.earned_badges));
                         if (parsedData.login_streak) localStorage.setItem('seguchi_login_streak', JSON.stringify(parsedData.login_streak));
                     } catch(e) { console.log("セーブデータの復元に失敗しました", e); }
@@ -385,36 +379,19 @@
         showScreen('screen-training');
     }
 
-    function startPractice(mode = 'normal') {
+    function startPractice() {
         applyPlanLimits(); 
-        gameState.mode = mode; gameState.currentStreak = 0; gameState.bestStreak = 0;
+        gameState.mode = 'normal'; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
-        gameState.startTime = Date.now(); // ★ スピードスター計測開始
+        gameState.startTime = Date.now(); 
         
         const pool = appSettings.enabledColors;
         if (pool.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         
         for (let i = 0; i < appSettings.questionCount; i++) {
-            if (mode === 'normal') gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
-            else gameState.questionsList.push(getWeightedRandomColor(pool));
+            gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
         }
         nextQuestion();
-    }
-
-    function getWeightedRandomColor(pool) {
-        let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
-        let weightedPool = [];
-        pool.forEach(key => {
-            let stat = stats[key] || { total: 0, correct: 0 };
-            let weight = 3; 
-            if (stat.total >= 5) {
-                let pct = (stat.correct / stat.total) * 100;
-                if (pct >= 90) weight = 1; else if (pct >= 70) weight = 2; else if (pct >= 50) weight = 3; else weight = 5; 
-            }
-            for(let i = 0; i < weight; i++) { weightedPool.push(key); }
-        });
-        if(weightedPool.length === 0) return pool[Math.floor(Math.random() * pool.length)];
-        return weightedPool[Math.floor(Math.random() * weightedPool.length)];
     }
 
     function nextQuestion() {
@@ -484,7 +461,6 @@
 
     function goToNextQuestion() { gameState.currentQuestionIndex++; nextQuestion(); }
 
-    // ★ シール獲得のチェックロジック
     function checkAndUnlockBadges(percent, totalPlays, dailyPlays, streakDays) {
         let earned = JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]');
         let newlyEarned = [];
@@ -507,7 +483,6 @@
         if (appSettings.questionCount >= 10 && percent === 100) unlock('perfect_10');
         
         let timeTakenSec = (Date.now() - gameState.startTime) / 1000;
-        // 1問あたり平均3.5秒以内(10問なら35秒)で全問正解ならスピードスター
         if (percent === 100 && timeTakenSec <= (appSettings.questionCount * 3.5)) unlock('speed_star'); 
 
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
@@ -554,7 +529,6 @@
         if (dailyHistory.length > 14) dailyHistory.shift(); 
         localStorage.setItem('seguchi_daily_history', JSON.stringify(dailyHistory));
 
-        // ★ 連続ログイン(日数)の計算
         let streakData = JSON.parse(localStorage.getItem('seguchi_login_streak') || '{"lastDate":"","count":0}');
         if (streakData.lastDate !== todayStr) {
             let yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
@@ -570,7 +544,6 @@
         let overallBest = parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0');
         if (gameState.bestStreak > overallBest) localStorage.setItem('seguchi_overall_best_streak', gameState.bestStreak);
 
-        // ★ シールチェックと獲得ポップアップ表示
         let newBadges = checkAndUnlockBadges(percent, totalCount, dailyHistory[dailyHistory.length - 1].count, streakData.count);
         const notif = document.getElementById('new-badge-notification');
         const notifList = document.getElementById('new-badge-list');
@@ -585,7 +558,6 @@
         showScreen('screen-result');
     }
 
-    // ★ シールちょう画面の描画
     function updateBadgesScreen() {
         const container = document.getElementById('badge-container');
         container.innerHTML = '';
@@ -615,13 +587,14 @@
     function saveRecordToGAS(percent, score, bestStreak, totalCount, todayCount) {
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let readableStatsText = ""; let weakColorName = "なし"; let lowestPercent = 100;
-        for (let key in stats) {
-            if (COLOR_DATA[key] && stats[key].total > 0) {
+        
+        Object.keys(COLOR_DATA).forEach(key => {
+            if (stats[key] && stats[key].total > 0) {
                 let pct = Math.round((stats[key].correct / stats[key].total) * 100);
                 readableStatsText += `${COLOR_DATA[key].name}: ${pct}% (${stats[key].correct}/${stats[key].total}回)\n`;
                 if (pct < lowestPercent && stats[key].total >= 3) { lowestPercent = pct; weakColorName = `${COLOR_DATA[key].name} (${pct}%)`; }
             }
-        }
+        });
         if (!readableStatsText) readableStatsText = "データなし";
 
         const currentSaveData = {
@@ -630,7 +603,6 @@
             session_history: JSON.parse(localStorage.getItem('seguchi_session_history') || '[]'),
             total_count: parseInt(localStorage.getItem('seguchi_total_count') || '0'),
             overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0'),
-            // ★ GASにもシールとログイン日数を保存
             earned_badges: JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]'),
             login_streak: JSON.parse(localStorage.getItem('seguchi_login_streak') || '{}')
         };
@@ -666,13 +638,13 @@
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let statsHtml = ""; let weakHtml = ""; let lowestPercent = 100;
 
-        for (let key in stats) {
-            if (COLOR_DATA[key] && stats[key].total > 0) {
+        Object.keys(COLOR_DATA).forEach(key => {
+            if (stats[key] && stats[key].total > 0) {
                 let pct = Math.round((stats[key].correct / stats[key].total) * 100);
                 statsHtml += `<div>${COLOR_DATA[key].emoji} ${COLOR_DATA[key].name}: ${pct}% (${stats[key].correct}/${stats[key].total})</div>`;
                 if (pct < lowestPercent && stats[key].total >= 3) { lowestPercent = pct; weakHtml = `${COLOR_DATA[key].emoji} ${COLOR_DATA[key].name} (${pct}%)`; }
             }
-        }
+        });
         document.getElementById('rec-color-stats').innerHTML = statsHtml || "まだデータがありません";
         document.getElementById('rec-weak-colors').innerHTML = weakHtml || "まだデータがありません";
         
