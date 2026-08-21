@@ -200,7 +200,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxa4hOnYDjkLMt3qPS7dow8BW689nnYStsmE1CGbG8Bs5ojU5QgZ2F9v3VndDCoRQXy4Q/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzLUiClX2OvdzGCtqgXQD8wr8jMGmPph0kdufc-84Kgtpv9QSPWWUuj5saqHpoQoWGihw/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -210,7 +210,7 @@
         midori:   { name: "みどり",     emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
         orange:   { name: "おれんじ",   emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
         murasaki: { name: "むらさき",   emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
-        pink:     { name: "ぴんく",     emoji: "<span style='color:#f06292;'>■</span>", color: "#f06292", file: "pink.mp3" }, 
+        pink:     { name: "ぴんく",     emoji: "<span style='color:#f06292; font-size: 1.3em;'>■</span>", color: "#f06292", file: "pink.mp3" }, 
         chairo:   { name: "ちゃいろ",   emoji: "🟫", color: "#795548", file: "chairo.mp3" },
         kimidori: { name: "らちすみ",   emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
         hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" },
@@ -448,6 +448,15 @@
             
             document.getElementById('btn-replay-correct').style.display = "none";
             document.getElementById('judge-correct-info').style.display = "none";
+
+            // ★正解時：ボタンを非表示にして1秒後に自動で次へ進む
+            document.getElementById('btn-next').style.display = "none";
+            setTimeout(() => {
+                if (document.getElementById('screen-judge').classList.contains('active')) {
+                    goToNextQuestion();
+                }
+            }, 1000);
+
         } else {
             gameState.currentStreak = 0;
             document.getElementById('judge-result').innerText = "❌ ざんねん..."; document.getElementById('judge-result').style.color = "#f44336";
@@ -456,6 +465,9 @@
             document.getElementById('judge-correct-info').innerHTML = `せいかいは： <span style="color:${correctData.color}; font-size:24px;">${correctData.emoji} ${correctData.name}</span>`;
             document.getElementById('judge-correct-info').style.display = "block";
             document.getElementById('btn-replay-correct').style.display = "block";
+
+            // ★不正解時：しっかり確認できるようボタンを表示する
+            document.getElementById('btn-next').style.display = "block";
         }
         showScreen('screen-judge');
     }
