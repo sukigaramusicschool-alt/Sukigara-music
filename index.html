@@ -183,13 +183,16 @@
         
         <div class="form-group" style="width: 100%;">
             <label>出題するボタン（色・音階）</label>
-            <div id="settings-colors" class="checkbox-grid"></div>
+            <!-- １カラムにして、右側にプルダウンを配置できるように変更 -->
+            <div id="settings-colors" class="checkbox-grid" style="grid-template-columns: 1fr;"></div>
         </div>
         <div class="form-group" style="width: 100%;">
             <label>問題数</label>
-            <div class="radio-group">
+            <div class="radio-group" style="flex-wrap: wrap;">
                 <label><input type="radio" name="setting-count" value="10" checked> 10問</label>
+                <label><input type="radio" name="setting-count" value="15"> 15問</label>
                 <label><input type="radio" name="setting-count" value="20"> 20問</label>
+                <label><input type="radio" name="setting-count" value="25"> 25問</label>
                 <label><input type="radio" name="setting-count" value="30"> 30問</label>
             </div>
         </div>
@@ -200,23 +203,23 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzLUiClX2OvdzGCtqgXQD8wr8jMGmPph0kdufc-84Kgtpv9QSPWWUuj5saqHpoQoWGihw/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz4wIPOolzVSIezs0wOAZGVvEuTJ_ebi_1ZA7Q0aixrgKbQ8ebNTOwaVavtACjJuHsnDA/exec";
 
     const COLOR_DATA = {
-        aka:      { name: "あか",       emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
-        kiiro:    { name: "きいろ",     emoji: "🟨", color: "#fdd835", file: "kiiro.mp3" }, 
-        ao:       { name: "あお",       emoji: "🟦", color: "#1e88e5", file: "ao.mp3" }, 
-        kuro:     { name: "くろ",       emoji: "⬛", color: "#212121", file: "kuro.mp3" }, 
-        midori:   { name: "みどり",     emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
-        orange:   { name: "おれんじ",   emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
-        murasaki: { name: "むらさき",   emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
-        pink:     { name: "ぴんく",     emoji: "<span style='color:#f06292; font-size: 1.3em;'>■</span>", color: "#f06292", file: "pink.mp3" }, 
-        chairo:   { name: "ちゃいろ",   emoji: "🟫", color: "#795548", file: "chairo.mp3" },
-        kimidori: { name: "らちすみ",   emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
-        hadairo:  { name: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" },
-        fujiiro:  { name: "みぎすし",   emoji: "🪻", color: "#b39ddb", file: "fujiiro.mp3" },
-        hai:      { name: "べれふぁ",   emoji: "🩶", color: "#9e9e9e", file: "hai.mp3" },
-        mizu:     { name: "えすそべ",   emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
+        aka:      { name: "あか",       chord: "どみそ",    emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
+        kiiro:    { name: "きいろ",     chord: "どふぁら",  emoji: "🟨", color: "#fdd835", file: "kiiro.mp3" }, 
+        ao:       { name: "あお",       chord: "しれそ",    emoji: "🟦", color: "#1e88e5", file: "ao.mp3" }, 
+        kuro:     { name: "くろ",       chord: "らどふぁ",  emoji: "⬛", color: "#212121", file: "kuro.mp3" }, 
+        midori:   { name: "みどり",     chord: "れそし",    emoji: "🟩", color: "#4caf50", file: "midori.mp3" }, 
+        orange:   { name: "おれんじ",   chord: "みそど",    emoji: "🟧", color: "#ff9800", file: "orange.mp3" }, 
+        murasaki: { name: "むらさき",   chord: "ふぁらど",  emoji: "🟪", color: "#8e24aa", file: "murasaki.mp3" }, 
+        pink:     { name: "ぴんく",     chord: "そしれ",    emoji: "<span style='color:#f06292; font-size: 1.3em;'>■</span>", color: "#f06292", file: "pink.mp3" }, 
+        chairo:   { name: "ちゃいろ",   chord: "そどみ",    emoji: "🟫", color: "#795548", file: "chairo.mp3" },
+        kimidori: { name: "らちすみ",   chord: "らちすみ",  emoji: "🍏", color: "#8bc34a", file: "kimidori.mp3" },
+        hadairo:  { name: "れふぃすら", chord: "れふぃすら", emoji: "🍑", color: "#ffccbc", file: "hadairo.mp3", textColor: "#333333" },
+        fujiiro:  { name: "みぎすし",   chord: "みぎすし",  emoji: "🪻", color: "#b39ddb", file: "fujiiro.mp3" },
+        hai:      { name: "べれふぁ",   chord: "べれふぁ",  emoji: "🩶", color: "#9e9e9e", file: "hai.mp3" },
+        mizu:     { name: "えすそべ",   chord: "えすそべ",  emoji: "🩵", color: "#29b6f6", file: "mizu.mp3" }
     };
 
     const PRAISE_1_2 = ["🌟 やったね！", "✨ できたね！", "🎈 そのちょうし！", "🌟 ピカッ！ あたり！", "✨ ニコニコ！ いいね！", "🌟 わぁい！", "✨ あたり！"];
@@ -240,16 +243,14 @@
     });
     BADGES_INFO.push({ id: 'master_all', emoji: '🌈', name: 'にじいろ<br>マスター' });
 
-    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
+    let appSettings = { enabledColors: ["aka", "kiiro", "ao"], displayModes: {}, questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
     let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0, startTime: 0 };
     
     let timerId = null;
     let timeLeft = 10;
     const audioCache = {};
     let isAnswering = false; 
-
-    let countChartInstance = null;
-    let accuracyChartInstance = null;
+    let isAudioUnlocked = false; 
 
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
@@ -335,6 +336,19 @@
 
     function preloadAudios() { Object.keys(COLOR_DATA).forEach(key => { audioCache[key] = new Audio(COLOR_DATA[key].file); }); }
     function stopAllAudio() { Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; } }); }
+
+    function unlockAudio() {
+        if (isAudioUnlocked) return;
+        Object.keys(audioCache).forEach(key => {
+            const a = audioCache[key];
+            a.muted = true;
+            const p = a.play();
+            if (p !== undefined) {
+                p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => {});
+            }
+        });
+        isAudioUnlocked = true;
+    }
     
     function showScreen(screenId) {
         stopAllAudio(); 
@@ -347,7 +361,10 @@
 
     function loadLocalStorageData() {
         const savedSettings = localStorage.getItem('seguchi_settings');
-        if (savedSettings) appSettings = JSON.parse(savedSettings);
+        if (savedSettings) {
+            appSettings = JSON.parse(savedSettings);
+            if (!appSettings.displayModes) appSettings.displayModes = {}; // 以前のセーブデータ用
+        }
         if (!appSettings.plan) appSettings.plan = "無料";
     }
 
@@ -367,6 +384,7 @@
     }
 
     function startTraining() {
+        unlockAudio(); 
         applyPlanLimits(); 
         if (appSettings.enabledColors.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         const container = document.getElementById('training-container'); container.innerHTML = '';
@@ -374,13 +392,18 @@
             const data = COLOR_DATA[key];
             const btn = document.createElement('button'); btn.className = 'btn-flag'; btn.style.backgroundColor = data.color;
             const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
-            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
+            
+            const mode = (appSettings.displayModes && appSettings.displayModes[key]) ? appSettings.displayModes[key] : "color";
+            const displayText = (mode === "chord") ? data.chord : data.name;
+
+            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${displayText}</span>`;
             btn.onclick = () => playChord(key); container.appendChild(btn);
         });
         showScreen('screen-training');
     }
 
     function startPractice() {
+        unlockAudio(); 
         applyPlanLimits(); 
         gameState.mode = 'normal'; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
@@ -414,7 +437,11 @@
             const data = COLOR_DATA[key];
             const btn = document.createElement('button'); btn.className = 'btn-flag'; btn.style.backgroundColor = data.color;
             const textStyle = data.textColor ? `color: ${data.textColor}; text-shadow: none;` : '';
-            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${data.name}</span>`;
+            
+            const mode = (appSettings.displayModes && appSettings.displayModes[key]) ? appSettings.displayModes[key] : "color";
+            const displayText = (mode === "chord") ? data.chord : data.name;
+
+            btn.innerHTML = `<span class="emoji">${data.emoji}</span><span style="${textStyle}">${displayText}</span>`;
             btn.onclick = () => { if (isAnswering) handleAnswer(key); };
             container.appendChild(btn);
         });
@@ -449,7 +476,6 @@
             document.getElementById('btn-replay-correct').style.display = "none";
             document.getElementById('judge-correct-info').style.display = "none";
 
-            // ★正解時：ボタンを非表示にして1秒後に自動で次へ進む
             document.getElementById('btn-next').style.display = "none";
             setTimeout(() => {
                 if (document.getElementById('screen-judge').classList.contains('active')) {
@@ -466,7 +492,6 @@
             document.getElementById('judge-correct-info').style.display = "block";
             document.getElementById('btn-replay-correct').style.display = "block";
 
-            // ★不正解時：しっかり確認できるようボタンを表示する
             document.getElementById('btn-next').style.display = "block";
         }
         showScreen('screen-judge');
@@ -765,9 +790,19 @@
             const textStyle = isDisabled ? "color: #bbb;" : "";
             const premiumBadge = isDisabled ? `<span style="font-size:10px; color:#f44336; border:1px solid #f44336; border-radius:4px; padding:0 2px; margin-left:4px;">プレ</span>` : "";
 
+            const currentMode = (appSettings.displayModes && appSettings.displayModes[key]) ? appSettings.displayModes[key] : "color";
+            const selectHtml = `
+                <select id="sel-mode-${key}" style="margin-left:auto; padding: 4px; border-radius: 4px; border: 1px solid #ccc;" ${isDisabled}>
+                    <option value="color" ${currentMode === 'color' ? 'selected' : ''}>色名</option>
+                    <option value="chord" ${currentMode === 'chord' ? 'selected' : ''}>和音</option>
+                </select>
+            `;
+
             const div = document.createElement('div'); div.className = 'checkbox-item';
+            div.style.width = "100%";
             div.innerHTML = `<input type="checkbox" id="chk-${key}" value="${key}" ${isChecked} ${isDisabled}> 
-                             <label for="chk-${key}" style="${textStyle}">${data.emoji} ${data.name} ${premiumBadge}</label>`;
+                             <label for="chk-${key}" style="${textStyle}; flex-grow: 1;">${data.emoji} ${data.name} ${premiumBadge}</label>
+                             ${selectHtml}`;
             container.appendChild(div);
         });
         document.querySelectorAll('input[name="setting-count"]').forEach(radio => { if (parseInt(radio.value) === appSettings.questionCount) radio.checked = true; });
@@ -775,12 +810,25 @@
 
     function saveSettings() {
         const checked = [];
-        document.querySelectorAll('#settings-colors input[type="checkbox"]:checked').forEach(chk => checked.push(chk.value));
+        const modes = {}; 
+        
+        document.querySelectorAll('#settings-colors input[type="checkbox"]:checked').forEach(chk => {
+            checked.push(chk.value);
+        });
         if (checked.length === 0) { alert("すくなくとも1つはえらんでね！"); return; }
+        
+        Object.keys(COLOR_DATA).forEach(key => {
+            const sel = document.getElementById('sel-mode-' + key);
+            if (sel) modes[key] = sel.value;
+        });
         
         let count = 10;
         document.querySelectorAll('input[name="setting-count"]').forEach(radio => { if (radio.checked) count = parseInt(radio.value); });
-        appSettings.enabledColors = checked; appSettings.questionCount = count;
+        
+        appSettings.enabledColors = checked; 
+        appSettings.questionCount = count;
+        appSettings.displayModes = modes;
+        
         localStorage.setItem('seguchi_settings', JSON.stringify(appSettings));
         alert("設定を保存しました。"); showScreen('screen-home');
     }
