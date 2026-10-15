@@ -183,7 +183,6 @@
         
         <div class="form-group" style="width: 100%;">
             <label>出題するボタン（色・音階）</label>
-            <!-- １カラムにして、右側にプルダウンを配置できるように変更 -->
             <div id="settings-colors" class="checkbox-grid" style="grid-template-columns: 1fr;"></div>
         </div>
         <div class="form-group" style="width: 100%;">
@@ -203,7 +202,7 @@
 
 <script>
     // ↓ ★ご自身の最新のGASデプロイURLに書き換えてください！★ ↓
-    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbz4wIPOolzVSIezs0wOAZGVvEuTJ_ebi_1ZA7Q0aixrgKbQ8ebNTOwaVavtACjJuHsnDA/exec";
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxlWsZOR7I8qvXju0OYg0DZo9h_e3t4xez6ukj96R69z4ZGfEe_C3o96tAqlDnZQhXWxg/exec";
 
     const COLOR_DATA = {
         aka:      { name: "あか",       chord: "どみそ",    emoji: "🟥", color: "#e53935", file: "aka.mp3" }, 
@@ -252,11 +251,26 @@
     let isAnswering = false; 
     let isAudioUnlocked = false; 
 
+    let countChartInstance = null;
+    let accuracyChartInstance = null;
+
     window.addEventListener('DOMContentLoaded', () => {
         loadLocalStorageData();
         preloadAudios();
         checkAuthStatus();
     });
+
+    function clearLocalUserData() {
+        localStorage.removeItem('seguchi_color_stats');
+        localStorage.removeItem('seguchi_daily_history');
+        localStorage.removeItem('seguchi_session_history');
+        localStorage.removeItem('seguchi_total_count');
+        localStorage.removeItem('seguchi_overall_best_streak');
+        localStorage.removeItem('seguchi_earned_badges');
+        localStorage.removeItem('seguchi_login_streak');
+        localStorage.removeItem('seguchi_settings');
+        appSettings = { enabledColors: ["aka", "kiiro", "ao"], displayModes: {}, questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
+    }
 
     function checkAuthStatus() {
         const isAuth = localStorage.getItem('seguchi_authenticated');
@@ -293,6 +307,7 @@
         .then(res => {
             loginBtn.innerText = "ログイン"; loginBtn.disabled = false;
             if (res.success) {
+                clearLocalUserData();
                 appSettings.studentId = studentId; appSettings.studentName = res.studentName; appSettings.plan = res.plan; 
                 
                 if (res.saveData) {
@@ -305,6 +320,11 @@
                         if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
                         if (parsedData.earned_badges) localStorage.setItem('seguchi_earned_badges', JSON.stringify(parsedData.earned_badges));
                         if (parsedData.login_streak) localStorage.setItem('seguchi_login_streak', JSON.stringify(parsedData.login_streak));
+                        if (parsedData.settings) {
+                            if (parsedData.settings.enabledColors) appSettings.enabledColors = parsedData.settings.enabledColors;
+                            if (parsedData.settings.displayModes) appSettings.displayModes = parsedData.settings.displayModes;
+                            if (parsedData.settings.questionCount) appSettings.questionCount = parsedData.settings.questionCount;
+                        }
                     } catch(e) { console.log("セーブデータの復元に失敗しました", e); }
                 }
 
@@ -329,6 +349,7 @@
     function logoutStudent() {
         if (confirm("ログアウトして ログインがめんに もどる？")) {
             localStorage.removeItem('seguchi_authenticated');
+            clearLocalUserData();
             document.getElementById('auth-student-id').value = ""; document.getElementById('auth-password').value = "";
             showScreen('screen-auth');
         }
@@ -363,7 +384,7 @@
         const savedSettings = localStorage.getItem('seguchi_settings');
         if (savedSettings) {
             appSettings = JSON.parse(savedSettings);
-            if (!appSettings.displayModes) appSettings.displayModes = {}; // 以前のセーブデータ用
+            if (!appSettings.displayModes) appSettings.displayModes = {}; 
         }
         if (!appSettings.plan) appSettings.plan = "無料";
     }
@@ -412,8 +433,20 @@
         const pool = appSettings.enabledColors;
         if (pool.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         
+        let bag = [];
         for (let i = 0; i < appSettings.questionCount; i++) {
-            gameState.questionsList.push(pool[Math.floor(Math.random() * pool.length)]);
+            if (bag.length === 0) {
+                bag = [...pool];
+                for (let j = bag.length - 1; j > 0; j--) {
+                    const r = Math.floor(Math.random() * (j + 1));
+                    [bag[j], bag[r]] = [bag[r], bag[j]];
+                }
+                if (pool.length > 1 && gameState.questionsList.length > 0 && bag[0] === gameState.questionsList[gameState.questionsList.length - 1]) {
+                    const swapIdx = Math.floor(Math.random() * (bag.length - 1)) + 1;
+                    [bag[0], bag[swapIdx]] = [bag[swapIdx], bag[0]];
+                }
+            }
+            gameState.questionsList.push(bag.shift());
         }
         nextQuestion();
     }
@@ -488,7 +521,9 @@
             document.getElementById('judge-result').innerText = "❌ ざんねん..."; document.getElementById('judge-result').style.color = "#f44336";
             document.getElementById('judge-comment').innerText = "💦 つぎは がんばろう！";
             const correctData = COLOR_DATA[correctKey];
-            document.getElementById('judge-correct-info').innerHTML = `せいかいは： <span style="color:${correctData.color}; font-size:24px;">${correctData.emoji} ${correctData.name}</span>`;
+            const mode = (appSettings.displayModes && appSettings.displayModes[correctKey]) ? appSettings.displayModes[correctKey] : "color";
+            const correctDisplayText = (mode === "chord") ? correctData.chord : correctData.name;
+            document.getElementById('judge-correct-info').innerHTML = `せいかいは： <span style="color:${correctData.color}; font-size:24px;">${correctData.emoji} ${correctDisplayText}</span>`;
             document.getElementById('judge-correct-info').style.display = "block";
             document.getElementById('btn-replay-correct').style.display = "block";
 
@@ -642,7 +677,12 @@
             total_count: parseInt(localStorage.getItem('seguchi_total_count') || '0'),
             overall_best_streak: parseInt(localStorage.getItem('seguchi_overall_best_streak') || '0'),
             earned_badges: JSON.parse(localStorage.getItem('seguchi_earned_badges') || '[]'),
-            login_streak: JSON.parse(localStorage.getItem('seguchi_login_streak') || '{}')
+            login_streak: JSON.parse(localStorage.getItem('seguchi_login_streak') || '{}'),
+            settings: {
+                enabledColors: appSettings.enabledColors,
+                displayModes: appSettings.displayModes,
+                questionCount: appSettings.questionCount
+            }
         };
 
         const recordData = {
