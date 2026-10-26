@@ -8,10 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --bg-color: #e6f7ff; --text-color: #333333; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
         body { margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { width: 100%; max-width: 640px; height: 100vh; max-height: 900px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; position: relative; display: flex; flex-direction: column; padding: 20px; }
-        .screen { display: none; flex-direction: column; height: 100%; justify-content: center; align-items: center; text-align: center; }
+        .screen { display: none; flex-direction: column; min-height: 100%; justify-content: center; align-items: center; text-align: center; }
         .screen.active { display: flex; }
         .logo-area { width: 100%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .logo-img-large { width: 85%; max-width: 300px; height: auto; object-fit: contain; }
@@ -27,6 +27,7 @@
         .btn-sub { background-color: #2196f3; color: white; }
         .btn-orange { background-color: #ff9800; color: white; }
         .btn-purple { background-color: #9c27b0; color: white; } 
+        .btn-gray { background-color: #757575; color: white; }
         .btn-back { background-color: #f5f5f5; color: #333; box-shadow: none; margin-top: auto; }
         .btn-danger { background-color: #f44336; color: white; } 
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: #666; box-shadow: none; }
@@ -45,7 +46,7 @@
         .radio-group { display: flex; gap: 15px; }
         .radio-group label { display: flex; align-items: center; gap: 5px; font-size: 18px; }
         .radio-group input { width: 22px; height: 22px; }
-        .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; }
+        .input-text { font-size: 20px; padding: 12px; width: 100%; text-align: center; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 15px; user-select: text; -webkit-user-select: text; }
         .chart-container { width: 100%; height: 200px; margin-top: 10px; margin-bottom: 20px; background: #ffffff; border-radius: 8px; padding: 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
 
         /* シールちょう用 CSS */
@@ -196,6 +197,7 @@
             </div>
         </div>
         <button class="btn btn-main" onclick="saveSettings()">保存して戻る</button>
+        <button class="btn btn-back" onclick="showScreen('screen-home')" style="margin-bottom: 30px;">キャンセル</button>
     </div>
 
 </div>
@@ -243,7 +245,7 @@
     BADGES_INFO.push({ id: 'master_all', emoji: '🌈', name: 'にじいろ<br>マスター' });
 
     let appSettings = { enabledColors: ["aka", "kiiro", "ao"], displayModes: {}, questionCount: 10, parentPin: "1234", studentId: "", studentName: "", plan: "無料" };
-    let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0, startTime: 0 };
+    let gameState = { currentQuestionIndex: 0, correctCount: 0, questionsList: [], currentColorKey: "", mode: "normal", currentStreak: 0, bestStreak: 0, startTime: 0, sessionStats: {} };
     
     let timerId = null;
     let timeLeft = 10;
@@ -307,20 +309,28 @@
         .then(res => {
             loginBtn.innerText = "ログイン"; loginBtn.disabled = false;
             if (res.success) {
-                clearLocalUserData();
+                const isSameStudent = (appSettings.studentId && appSettings.studentId === studentId);
+                if (!isSameStudent) {
+                    clearLocalUserData();
+                }
                 appSettings.studentId = studentId; appSettings.studentName = res.studentName; appSettings.plan = res.plan; 
                 
                 if (res.saveData) {
                     try {
                         const parsedData = JSON.parse(res.saveData);
-                        if (parsedData.color_stats) localStorage.setItem('seguchi_color_stats', JSON.stringify(parsedData.color_stats));
-                        if (parsedData.daily_history) localStorage.setItem('seguchi_daily_history', JSON.stringify(parsedData.daily_history));
-                        if (parsedData.session_history) localStorage.setItem('seguchi_session_history', JSON.stringify(parsedData.session_history));
-                        if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
-                        if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
-                        if (parsedData.earned_badges) localStorage.setItem('seguchi_earned_badges', JSON.stringify(parsedData.earned_badges));
-                        if (parsedData.login_streak) localStorage.setItem('seguchi_login_streak', JSON.stringify(parsedData.login_streak));
-                        if (parsedData.settings) {
+                        const localTotal = parseInt(localStorage.getItem('seguchi_total_count') || '0');
+                        const serverTotal = parseInt(parsedData.total_count || '0');
+                        
+                        if (!isSameStudent || serverTotal >= localTotal) {
+                            if (parsedData.color_stats) localStorage.setItem('seguchi_color_stats', JSON.stringify(parsedData.color_stats));
+                            if (parsedData.daily_history) localStorage.setItem('seguchi_daily_history', JSON.stringify(parsedData.daily_history));
+                            if (parsedData.session_history) localStorage.setItem('seguchi_session_history', JSON.stringify(parsedData.session_history));
+                            if (parsedData.total_count) localStorage.setItem('seguchi_total_count', parsedData.total_count);
+                            if (parsedData.overall_best_streak) localStorage.setItem('seguchi_overall_best_streak', parsedData.overall_best_streak);
+                            if (parsedData.earned_badges) localStorage.setItem('seguchi_earned_badges', JSON.stringify(parsedData.earned_badges));
+                            if (parsedData.login_streak) localStorage.setItem('seguchi_login_streak', JSON.stringify(parsedData.login_streak));
+                        }
+                        if (!isSameStudent && parsedData.settings) {
                             if (parsedData.settings.enabledColors) appSettings.enabledColors = parsedData.settings.enabledColors;
                             if (parsedData.settings.displayModes) appSettings.displayModes = parsedData.settings.displayModes;
                             if (parsedData.settings.questionCount) appSettings.questionCount = parsedData.settings.questionCount;
@@ -349,14 +359,13 @@
     function logoutStudent() {
         if (confirm("ログアウトして ログインがめんに もどる？")) {
             localStorage.removeItem('seguchi_authenticated');
-            clearLocalUserData();
             document.getElementById('auth-student-id').value = ""; document.getElementById('auth-password').value = "";
             showScreen('screen-auth');
         }
     }
 
     function preloadAudios() { Object.keys(COLOR_DATA).forEach(key => { audioCache[key] = new Audio(COLOR_DATA[key].file); }); }
-    function stopAllAudio() { Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; } }); }
+    function stopAllAudio() { Object.keys(audioCache).forEach(key => { if (audioCache[key]) { audioCache[key].pause(); audioCache[key].currentTime = 0; audioCache[key].muted = false; } }); }
 
     function unlockAudio() {
         if (isAudioUnlocked) return;
@@ -365,7 +374,18 @@
             a.muted = true;
             const p = a.play();
             if (p !== undefined) {
-                p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => {});
+                p.then(() => {
+                    const isPlayingCurrent = document.getElementById('screen-practice').classList.contains('active') && key === gameState.currentColorKey;
+                    if (!isPlayingCurrent) {
+                        a.pause();
+                        a.currentTime = 0;
+                    }
+                    a.muted = false;
+                }).catch(() => {
+                    a.muted = false;
+                });
+            } else {
+                a.muted = false;
             }
         });
         isAudioUnlocked = true;
@@ -391,7 +411,9 @@
 
     function playChord(colorKey) {
         if (!colorKey || !audioCache[colorKey]) return;
-        stopAllAudio(); audioCache[colorKey].currentTime = 0;
+        stopAllAudio();
+        audioCache[colorKey].muted = false;
+        audioCache[colorKey].currentTime = 0;
         audioCache[colorKey].play().catch(e => console.log("Audio error:", e));
     }
     function playCurrentChord() { playChord(gameState.currentColorKey); }
@@ -429,21 +451,27 @@
         gameState.mode = 'normal'; gameState.currentStreak = 0; gameState.bestStreak = 0;
         gameState.currentQuestionIndex = 0; gameState.correctCount = 0; gameState.questionsList = [];
         gameState.startTime = Date.now(); 
+        gameState.sessionStats = {};
         
         const pool = appSettings.enabledColors;
         if (pool.length === 0) { alert("せっていがめんで 1つえらんでね。"); return; }
         
         let bag = [];
+        const setsPerBag = (pool.length <= 3) ? 2 : 1;
         for (let i = 0; i < appSettings.questionCount; i++) {
             if (bag.length === 0) {
-                bag = [...pool];
+                for (let s = 0; s < setsPerBag; s++) {
+                    bag.push(...pool);
+                }
                 for (let j = bag.length - 1; j > 0; j--) {
                     const r = Math.floor(Math.random() * (j + 1));
                     [bag[j], bag[r]] = [bag[r], bag[j]];
                 }
                 if (pool.length > 1 && gameState.questionsList.length > 0 && bag[0] === gameState.questionsList[gameState.questionsList.length - 1]) {
-                    const swapIdx = Math.floor(Math.random() * (bag.length - 1)) + 1;
-                    [bag[0], bag[swapIdx]] = [bag[swapIdx], bag[0]];
+                    const swapIdx = bag.findIndex(k => k !== bag[0]);
+                    if (swapIdx !== -1) {
+                        [bag[0], bag[swapIdx]] = [bag[swapIdx], bag[0]];
+                    }
                 }
             }
             gameState.questionsList.push(bag.shift());
@@ -455,7 +483,14 @@
         if (gameState.currentQuestionIndex >= appSettings.questionCount) { showResult(); return; }
         gameState.currentColorKey = gameState.questionsList[gameState.currentQuestionIndex];
         document.getElementById('practice-progress').innerText = `もんだい ${gameState.currentQuestionIndex + 1} / ${appSettings.questionCount}`;
-        renderFlagButtons(); showScreen('screen-practice'); isAnswering = true; playCurrentChord();
+        renderFlagButtons(); showScreen('screen-practice'); playCurrentChord();
+        
+        isAnswering = false;
+        setTimeout(() => {
+            if (document.getElementById('screen-practice').classList.contains('active')) {
+                isAnswering = true;
+            }
+        }, 400);
         
         clearInterval(timerId); timeLeft = 10; document.getElementById('timer-sec').innerText = timeLeft;
         timerId = setInterval(() => {
@@ -484,10 +519,9 @@
         isAnswering = false; clearInterval(timerId);
         const correctKey = gameState.currentColorKey; const isCorrect = (selectedKey === correctKey);
         
-        let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
-        if (!stats[correctKey]) stats[correctKey] = { total: 0, correct: 0 };
-        stats[correctKey].total++; if (isCorrect) stats[correctKey].correct++;
-        localStorage.setItem('seguchi_color_stats', JSON.stringify(stats));
+        if (!gameState.sessionStats[correctKey]) gameState.sessionStats[correctKey] = { total: 0, correct: 0 };
+        gameState.sessionStats[correctKey].total++;
+        if (isCorrect) gameState.sessionStats[correctKey].correct++;
 
         if (isCorrect) {
             gameState.correctCount++; gameState.currentStreak++;
@@ -518,7 +552,8 @@
 
         } else {
             gameState.currentStreak = 0;
-            document.getElementById('judge-result').innerText = "❌ ざんねん..."; document.getElementById('judge-result').style.color = "#f44336";
+            document.getElementById('judge-result').innerText = (selectedKey === null) ? "⏰ じかんぎれ！" : "❌ ざんねん...";
+            document.getElementById('judge-result').style.color = "#f44336";
             document.getElementById('judge-comment').innerText = "💦 つぎは がんばろう！";
             const correctData = COLOR_DATA[correctKey];
             const mode = (appSettings.displayModes && appSettings.displayModes[correctKey]) ? appSettings.displayModes[correctKey] : "color";
@@ -561,8 +596,10 @@
         let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
         let masteredCount = 0;
         Object.keys(COLOR_DATA).forEach(k => {
-            if (stats[k] && stats[k].correct >= 20) unlock('master_' + k);
-            if (stats[k] && stats[k].total > 0) masteredCount++;
+            if (stats[k] && stats[k].correct >= 20) {
+                unlock('master_' + k);
+                masteredCount++;
+            }
         });
 
         if (masteredCount >= 14) unlock('master_all');
@@ -572,6 +609,14 @@
     }
 
     function showResult() {
+        let stats = JSON.parse(localStorage.getItem('seguchi_color_stats') || '{}');
+        Object.keys(gameState.sessionStats).forEach(k => {
+            if (!stats[k]) stats[k] = { total: 0, correct: 0 };
+            stats[k].total += gameState.sessionStats[k].total;
+            stats[k].correct += gameState.sessionStats[k].correct;
+        });
+        localStorage.setItem('seguchi_color_stats', JSON.stringify(stats));
+
         const total = appSettings.questionCount; const correct = gameState.correctCount;
         const percent = Math.round((correct / total) * 100);
         document.getElementById('result-score').innerText = `${total}もんちゅう ${correct}もんせいかい！`;
@@ -627,7 +672,7 @@
             notif.style.display = 'none';
         }
 
-        saveRecordToGAS(percent, `${correct}/${total}`, gameState.bestStreak, totalCount, dailyHistory[dailyHistory.length - 1].count);
+        saveRecordToGAS(percent, `${correct}問/${total}問`, gameState.bestStreak, totalCount, dailyHistory[dailyHistory.length - 1].count);
         showScreen('screen-result');
     }
 
